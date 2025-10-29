@@ -1,6 +1,27 @@
-import { clerkMiddleware } from '@clerk/nextjs/server'
+import { clerkMiddleware,createRouteMatcher  } from '@clerk/nextjs/server'
+import { NextResponse } from 'next/server'
 
-export default clerkMiddleware()
+
+const notStudentRoute = createRouteMatcher(['/admin(.*)','/alumni(.*)'])
+const notAlumniRoute = createRouteMatcher(['/admin(.*)','/student(.*)'])
+const notAdminRoute = createRouteMatcher(['/alumni(.*)','/student(.*)'])
+
+export default clerkMiddleware(async (auth, req) => {
+  // Protect all routes starting with `/admin`
+  if (notStudentRoute(req) && (await auth()).sessionClaims?.metadata?.role === 'student') {
+    const url = new URL('/', req.url)
+    return NextResponse.redirect(url)
+  }
+  if (notAlumniRoute(req) && (await auth()).sessionClaims?.metadata?.role === 'alumni') {
+    const url = new URL('/', req.url)
+    return NextResponse.redirect(url)
+  }
+  if (notAdminRoute(req) && (await auth()).sessionClaims?.metadata?.role === 'admin') {
+    const url = new URL('/', req.url)
+    return NextResponse.redirect(url)
+  }
+
+})
 
 export const config = {
   matcher: [
