@@ -1,8 +1,29 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function AdAlumni() {
+  const [totalDocuments, setTotalDocuments] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    const fetchTotal = async () => {
+      try {
+        const result = await fetch("http://localhost:8080/api/totalAlumni");
+
+        const res = await result.json();
+        if (!result.ok) {
+          throw new Error("something went wrong");
+        }
+        setTotalDocuments(res.data);
+        setLoading(false);
+        console.log(res.data);
+      } catch (error) {
+        console.log("error", error);
+      }
+    };
+    fetchTotal();
+  }, []);
+
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -40,9 +61,16 @@ export default function AdAlumni() {
       if (!response.ok) {
         throw new Error(result.message || "Something went wrong");
       }
+      // update state immutably instead of mutating the array
+      setTotalDocuments((prev) => {
+        const next = [...prev];
+        next[0] = result.data.totalAlumni;
+        return next;
+      });
       console.log("Server response:", result);
     } catch (error) {
-      console.error("Error sending form data:", error.message);
+      // console.error("Error sending form data:", error.message);
+      alert(error.message);
     } finally {
       setFormData({
         fullName: "",
@@ -69,14 +97,24 @@ export default function AdAlumni() {
             <div className="h-auto w-auto border-2 border-sky-200 rounded-md">
               <div className="px-4 my-5 ">
                 <p className="text-xl font-bold ">Total Alumni</p>
-                <p className="text-lg font-semibold ">100</p>
+                {loading ? (
+                  <p className="text-black animate-pulse">Loading...</p>
+                ) : (
+                  <p className="text-lg font-semibold ">{totalDocuments[0]}</p>
+                )}
               </div>
             </div>
             <div>
               <div className="h-auto w-auto border-2 border-sky-200 rounded-md">
                 <div className="px-4 my-5 ">
                   <p className="text-xl font-bold ">Current Events</p>
-                  <p className="text-lg font-semibold ">3</p>
+                  {loading ? (
+                    <p className="text-black animate-pulse">Loading...</p>
+                  ) : (
+                    <p className="text-lg font-semibold ">
+                      {totalDocuments[1]}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
@@ -160,6 +198,7 @@ export default function AdAlumni() {
                   onChange={handleChange}
                 />
               </div>
+              {/* add toast to add interactivity */}
               <button
                 type="submit"
                 className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
