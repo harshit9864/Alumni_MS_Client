@@ -1,4 +1,4 @@
-import Direc from "./direc";
+import Direc from "../../components/direc";
 export default function Directory() {
   return (
     <>

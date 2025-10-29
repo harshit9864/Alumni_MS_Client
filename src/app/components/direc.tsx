@@ -1,43 +1,46 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export interface Alumni {
   fullName: string;
   batchYear: number;
   email: string;
-  profession: string;
+  currentProfession: string;
   company: string;
 }
 
 export default function Direc() {
-  const alumni: Alumni[] = [
-    {
-      fullName: "Rahul Sharma",
-      batchYear: 2018,
-      email: "rahul.sharma@example.com",
-      profession: "Software Engineer",
-      company: "Google",
-    },
-    {
-      fullName: "Priya Verma",
-      batchYear: 2017,
-      email: "priya.verma@example.com",
-      profession: "Data Scientist",
-      company: "Microsoft",
-    },
-  ];
+  const [alumnis, setAlumnis] = useState<Alumni[]>([]);
+
+  useEffect(() => {
+    const fetchAlumni = async () => {
+      try {
+        const res = await fetch("http://localhost:8080/api/direc");
+        if (!res.ok) {
+          throw new Error("something went wrong");
+        }
+        const result = await res.json();
+        setAlumnis(result.data);
+      } catch (error) {
+        alert(error);
+      }
+    };
+    fetchAlumni();
+  }, []);
 
   const [search, setSearch] = useState("");
 
-  const filteredAlumni = alumni.filter(
-    (a) =>
-      a.fullName.toLowerCase().includes(search.toLowerCase()) ||
-      a.email.toLowerCase().includes(search.toLowerCase()) ||
-      a.profession.toLowerCase().includes(search.toLowerCase()) ||
-      a.company.toLowerCase().includes(search.toLowerCase()) ||
-      a.batchYear.toString().includes(search)
-  );
+  const filteredAlumni = alumnis.filter((a) => {
+    const searchTerm = search.toLowerCase();
+    return (
+      a.fullName?.toLowerCase().startsWith(searchTerm) ||
+      a.email?.toLowerCase().startsWith(searchTerm) ||
+      a.currentProfession?.toLowerCase().startsWith(searchTerm) ||
+      a.company?.toLowerCase().startsWith(searchTerm) ||
+      a.batchYear?.toString().startsWith(search)
+    );
+  });
 
   return (
     <div className=" bg-white shadow rounded p-6">
@@ -54,7 +57,7 @@ export default function Direc() {
 
       {/* Table */}
       <div className="overflow-x-auto">
-        <table className="w-full border-collapse">
+        <table className="w-full">
           <thead>
             <tr className="bg-gray-100 text-left">
               <th className="p-3 border">Name</th>
@@ -71,7 +74,7 @@ export default function Direc() {
                   <td className="p-3 border">{a.fullName}</td>
                   <td className="p-3 border">{a.batchYear}</td>
                   <td className="p-3 border">{a.email}</td>
-                  <td className="p-3 border">{a.profession}</td>
+                  <td className="p-3 border">{a.currentProfession}</td>
                   <td className="p-3 border">{a.company}</td>
                 </tr>
               ))
