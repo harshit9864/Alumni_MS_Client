@@ -11,11 +11,11 @@ import {
 interface CardddProps {
   title: string;
   date: string;
-  attend: number;
+  content: string;
   role: string;
 }
 
-export default function Carddd({ title, date, attend, role }: CardddProps) {
+export default function Carddd({ title, date, content, role }: CardddProps) {
   return (
     <div>
       <Card className="w-full max-w-2xl">
@@ -25,11 +25,8 @@ export default function Carddd({ title, date, attend, role }: CardddProps) {
           {role === "alumni" ? <CardAction>Join Event</CardAction> : ""}
         </CardHeader>
         <CardContent>
-          <p>Card Content</p>
-        </CardContent>
-        <CardFooter>
-          <p>{attend}</p>
-        </CardFooter>
+          <p>{content}</p>
+        </CardContent>       
       </Card>
     </div>
   );
