@@ -86,14 +86,14 @@ export default function BlogPublishForm() {
               onChange={handleChange}
             />
             <Input
+              type="file"
               name="image"
-              placeholder="Image URL"
               value={formData.image}
               onChange={handleChange}
             />
             <Textarea
               name="excerpt"
-              placeholder="Short summary (1–2 sentences)"
+              placeholder="Short summary (1-2 sentences)"
               value={formData.excerpt}
               onChange={handleChange}
               rows={2}

@@ -2,6 +2,7 @@ import { clerkMiddleware,createRouteMatcher  } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
 
 
+const isProtectedRoute = createRouteMatcher(['/admin(.*)','/alumni(.*)','/student(.*)','/select-role'])
 const notStudentRoute = createRouteMatcher(['/admin(.*)','/alumni(.*)'])
 const notAlumniRoute = createRouteMatcher(['/admin(.*)','/student(.*)'])
 const notAdminRoute = createRouteMatcher(['/alumni(.*)','/student(.*)'])
@@ -20,6 +21,7 @@ export default clerkMiddleware(async (auth, req) => {
     const url = new URL('/', req.url)
     return NextResponse.redirect(url)
   }
+  if (isProtectedRoute(req)) await auth.protect()
 
 })
 
