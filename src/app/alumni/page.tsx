@@ -8,11 +8,11 @@ export default function Alumni() {
   const { getToken } = useAuth();
   const [eventsJoined, setEventsJoined] = useState(0);
   const [mentorship, setMentorship] = useState(0);
-
+  
   useEffect(() => {
     const fetchAlumni = async () => {
       try {
-        const token = await getToken();
+        var token = await getToken();
         const response = await fetch("http://localhost:8080/alumni/sync", {
           headers: {
             Authorization: `Bearer ${token}`,

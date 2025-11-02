@@ -3,12 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Calendar, User } from "lucide-react";
 
 interface BlogPost {
-  id: string;
   title: string;
-  author: string;
+  authorName: string;
   date: string;
-  excerpt: string;
-  image: string;
+  summary: string;
+  image: string | null;
 }
 
 interface BlogCardGridProps {
@@ -17,15 +16,16 @@ interface BlogCardGridProps {
 
 export default function BlogCardGrid({ posts }: BlogCardGridProps) {
   return (
+    posts.length === 0 ? <h1>no blogs</h1> : 
     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 p-6">
-      {posts.map((post, index) => (
+      {posts?.map((post, index) => (
         <Card
           className="overflow-hidden rounded-2xl shadow hover:shadow-lg transition-all duration-300"
-          key={post.id}
+          key={post.title}
         >
           <div className="h-48 overflow-hidden">
             <img
-              src={post.image}
+              src={post.image ? post.image : "null"}
               alt={post.title}
               className="h-full w-full object-cover hover:scale-105 transition-transform duration-500"
             />
@@ -36,10 +36,10 @@ export default function BlogCardGrid({ posts }: BlogCardGridProps) {
             </CardTitle>
           </CardHeader>
           <CardContent className="text-sm text-muted-foreground space-y-2">
-            <p className="line-clamp-3">{post.excerpt}</p>
+            <p className="line-clamp-3">{post.summary}</p>
             <div className="flex justify-between text-xs pt-2">
               <span className="flex items-center gap-1">
-                <User className="w-4 h-4" /> {post.author}
+                <User className="w-4 h-4" /> {post.authorName}
               </span>
               <span className="flex items-center gap-1">
                 <Calendar className="w-4 h-4" /> {post.date}

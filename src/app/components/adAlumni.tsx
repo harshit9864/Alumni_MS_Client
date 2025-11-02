@@ -70,7 +70,7 @@ export default function AdAlumni() {
       console.log("Server response:", result);
     } catch (error) {
       // console.error("Error sending form data:", error.message);
-      alert(error.message);
+      alert(error);
     } finally {
       setFormData({
         fullName: "",

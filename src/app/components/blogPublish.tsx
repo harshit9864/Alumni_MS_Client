@@ -5,23 +5,25 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useAuth } from "@clerk/nextjs";
 
 interface BlogPost {
   title: string;
-  author: string;
+  authorName: string;
   date: string;
   image: string;
-  excerpt: string;
+  summary: string;
   content: string;
 }
 
 export default function BlogPublishForm() {
+  const { getToken } = useAuth();
   const [formData, setFormData] = useState<BlogPost>({
     title: "",
-    author: "",
-    date: new Date().toISOString().split("T")[0],
+    authorName: "",
+    date: "",
     image: "",
-    excerpt: "",
+    summary: "",
     content: "",
   });
 
@@ -35,24 +37,39 @@ export default function BlogPublishForm() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    const token = await getToken();
 
-    // Simulate publishing
-    setTimeout(() => {
-      console.log("Blog submitted:", formData);
-      setSubmittedPost(formData);
+    try {
+      const response = await fetch("http://localhost:8080/alumni/post-blog", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || "something went wrong");
+      }
+      console.log(result);
+    } catch (error) {
+      alert(error);
+    } finally {
       setIsSubmitting(false);
       setFormData({
         title: "",
-        author: "",
+        authorName: "",
         date: new Date().toISOString().split("T")[0],
         image: "",
-        excerpt: "",
+        summary: "",
         content: "",
       });
-    }, 1000);
+    }
   };
 
   return (
@@ -73,17 +90,11 @@ export default function BlogPublishForm() {
               required
             />
             <Input
-              name="author"
+              name="authorName"
               placeholder="Author Name"
-              value={formData.author}
+              value={formData.authorName}
               onChange={handleChange}
               required
-            />
-            <Input
-              type="date"
-              name="date"
-              value={formData.date}
-              onChange={handleChange}
             />
             <Input
               type="file"
@@ -92,9 +103,9 @@ export default function BlogPublishForm() {
               onChange={handleChange}
             />
             <Textarea
-              name="excerpt"
+              name="summary"
               placeholder="Short summary (1-2 sentences)"
-              value={formData.excerpt}
+              value={formData.summary}
               onChange={handleChange}
               rows={2}
               required
