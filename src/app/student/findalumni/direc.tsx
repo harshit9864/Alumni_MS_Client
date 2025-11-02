@@ -29,6 +29,8 @@ export default function Direc() {
   ];
 
   const [search, setSearch] = useState("");
+  const [selectedAlumni, setSelectedAlumni] = useState<Alumni | null>(null);
+  const [showModal, setShowModal] = useState(false);
 
   const filteredAlumni = alumni.filter((a) => {
     const query = search.toLowerCase();
@@ -42,8 +44,38 @@ export default function Direc() {
     );
   });
 
+  const handleRowClick = (alumnus: Alumni) => {
+    setSelectedAlumni(alumnus);
+    setShowModal(true);
+  };
+
+  const handleConfirm = async () => {
+    if (!selectedAlumni) return;
+
+    try {
+      // Example fetch call
+      await fetch("/api/alumni-action", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: selectedAlumni.email }),
+      });
+
+      alert(`Action performed for ${selectedAlumni.fullName}`);
+    } catch (error) {
+      console.error("Error:", error);
+    } finally {
+      setShowModal(false);
+      setSelectedAlumni(null);
+    }
+  };
+
+  const handleCancel = () => {
+    setShowModal(false);
+    setSelectedAlumni(null);
+  };
+
   return (
-    <div className=" bg-white shadow rounded p-6">
+    <div className="bg-white shadow rounded p-6 relative">
       <h2 className="text-2xl font-bold mb-4">📋 Alumni Directory</h2>
 
       {/* Search */}
@@ -70,7 +102,11 @@ export default function Direc() {
           <tbody>
             {filteredAlumni.length > 0 ? (
               filteredAlumni.map((a, index) => (
-                <tr key={index} className="hover:bg-gray-50">
+                <tr
+                  key={index}
+                  onClick={() => handleRowClick(a)}
+                  className="hover:bg-gray-50 cursor-pointer"
+                >
                   <td className="p-3 border">{a.fullName}</td>
                   <td className="p-3 border">{a.batchYear}</td>
                   <td className="p-3 border">{a.email}</td>
@@ -88,6 +124,34 @@ export default function Direc() {
           </tbody>
         </table>
       </div>
+
+      {/* Modal */}
+      {showModal && selectedAlumni && (
+        <div className="fixed inset-0 backdrop-blur-sm bg-white/30 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-2xl shadow-lg max-w-sm w-full">
+            <h3 className="text-xl font-semibold mb-3">
+              Are you sure you want to perform this action for
+            </h3>
+            <p className="text-lg font-bold text-blue-600 mb-6">
+              {selectedAlumni.fullName}?
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={handleCancel}
+                className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300"
+              >
+                No
+              </button>
+              <button
+                onClick={handleConfirm}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              >
+                Yes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
