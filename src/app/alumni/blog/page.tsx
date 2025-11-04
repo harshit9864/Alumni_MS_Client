@@ -40,7 +40,7 @@ export default async function Page() {
     }
 
     const result = await response.json();
-    console.log(result,userId);
+    // console.log(result,userId);
     posts = result.data;
   } catch (error) {
     console.error("Error fetching blogs:", error);

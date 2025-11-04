@@ -3,13 +3,14 @@ import Carddd from "@/app/components/Card";
 import { useEffect, useState } from "react";
 
 interface Events {
+  _id:string,
   title: string;
   date: Date;
   content: string;
   time: string;
 }
 
-export default function Events({ role }: { role: string }) {
+export default function Events() {
   const [loading, setLoading] = useState(true);
   const [events, setEvents] = useState<Events[]>([]);
   useEffect(() => {
@@ -38,11 +39,12 @@ export default function Events({ role }: { role: string }) {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-5 mt-5">
           {events.map((ev) => (
             <Carddd
-              key={ev.title} // always add a unique key when mapping
+              key={ev._id} // always add a unique key when mapping
+              
               title={ev.title}
               date={new Date(ev.date).toISOString().split("T")[0]}
               content={ev.content}
-              role={role}
+         
             />
           ))}
         </div>
