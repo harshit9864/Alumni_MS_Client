@@ -13,6 +13,9 @@ export default function SelectRole({
   const handleSelect = (role: "admin" | "alumni" | "student") => {
     startTransition(async () => {
       await updateUser(role);
+      if (role == "student") {
+        redirect("/student/fillForm");
+      }
       redirect(`/${role}`);
     });
   };

@@ -41,12 +41,6 @@ export default function Student() {
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-3">
-            <div className="h-auto w-auto border-2 border-sky-200 rounded-md">
-              <div className="px-4 my-5 ">
-                <p className="text-xl font-bold ">Current events</p>
-                <p className="text-lg font-semibold ">100</p>
-              </div>
-            </div>
             <div>
               <div className="h-auto w-auto border-2 border-sky-200 rounded-md">
                 <div className="px-4 my-5 ">
