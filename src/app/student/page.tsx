@@ -2,18 +2,8 @@
 import { Card, CardContent, CardHeader } from "../../components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  Search,
-  Users,
-  Calendar,
-  MessageSquare,
-  Filter,
-  MapPin,
-  Briefcase,
-} from "lucide-react";
+import { MessageSquare } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Asul } from "next/font/google";
-import { headers } from "next/headers";
 import { useAuth } from "@clerk/nextjs";
 
 interface Mentorship {
@@ -30,22 +20,7 @@ export default function Student() {
   const [mentorships, setMentorships] = useState<Mentorship[]>([]);
   const [loading, setLoading] = useState(true);
   const { getToken } = useAuth();
-  const mentorshipRequests = [
-    {
-      id: 1,
-      alumni: "John Smith",
-      subject: "Software Development Career",
-      status: "pending",
-      date: "2024-02-10",
-    },
-    {
-      id: 2,
-      alumni: "Sarah Johnson",
-      subject: "Product Management Guidance",
-      status: "accepted",
-      date: "2024-02-08",
-    },
-  ];
+
   useEffect(() => {
     const fetchProfile = async () => {
       const token = await getToken();

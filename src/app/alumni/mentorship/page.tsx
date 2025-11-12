@@ -1,37 +1,45 @@
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+"use client";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { useAuth } from "@clerk/nextjs";
+import { useEffect, useState } from "react";
+
+interface Mentorship {
+  _id: number;
+  studentInfo: {
+    fullName: string;
+  };
+  purpose: string;
+  status: string;
+  date: string;
+}
 
 export default function Mentorship() {
-  const mentorshipRequests = [
-    {
-      id: 1,
-      student: "Alice Johnson",
-      subject: "Career Guidance",
-      status: "pending",
-      date: "2024-02-10",
-    },
-    {
-      id: 2,
-      student: "Bob Smith",
-      subject: "Project Help",
-      status: "accepted",
-      date: "2024-02-08",
-    },
-    {
-      id: 3,
-      student: "Carol Davis",
-      subject: "Interview Prep",
-      status: "completed",
-      date: "2024-02-05",
-    },
-  ];
+  const [mentorships, setMentorships] = useState<Mentorship[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { getToken } = useAuth();
+
+  useEffect(() => {
+    const fetchMentorship = async () => {
+      const token = await getToken();
+      try {
+        const res = await fetch("http://localhost:8080/alumni/mentorships", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const result = await res.json();
+        if (!res.ok) {
+          throw new Error(result.message || "Something went wrong");
+        }
+        setMentorships(result.data);
+        setLoading(false);
+      } catch (error) {
+        console.log(error);
+        setLoading(false);
+      }
+    };
+    fetchMentorship();
+  }, []);
 
   return (
     <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
@@ -40,37 +48,47 @@ export default function Mentorship() {
           <h3 className="text-lg font-semibold">Mentorship Requests</h3>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {mentorshipRequests.map((request) => (
-              <div
-                key={request.id}
-                className="flex items-center justify-between p-4 border border-gray-200 rounded-lg"
-              >
-                <div className="flex items-center">
-                  <div>
-                    <h4 className="font-medium text-gray-900">
-                      From: {request.student}
-                    </h4>
-                    <p className="text-sm text-gray-600">{request.subject}</p>
-                    <p className="text-xs text-gray-500">{request.date}</p>
+          {loading ? (
+            <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-indigo-500"></div>
+          ) : mentorships.length == 0 ? (
+            <div className="text-center font-semibold mt-2">
+              No Mentorship Requests
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {mentorships.map((request) => (
+                <div
+                  key={request._id}
+                  className="flex items-center justify-between p-4 border border-gray-200 rounded-lg"
+                >
+                  <div className="flex items-center">
+                    <div>
+                      <h4 className="font-medium text-gray-900">
+                        From: {request.studentInfo.fullName}
+                      </h4>
+                      <p className="text-sm text-gray-600">{request.purpose}</p>
+                      <p className="text-xs text-gray-500">
+                        {request.date.split("T")[0]}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    {request.status}
+                    {request.status === "pending" && (
+                      <div className="flex space-x-2">
+                        <button className="border-3 border-indigo-600 px-1 cursor-pointer">
+                          Accept
+                        </button>
+                        <button className="border-3 border-indigo-600 px-1 cursor-pointer">
+                          Decline
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  {request.status}
-                  {request.status === "pending" && (
-                    <div className="flex space-x-2">
-                      <button className="border-3 border-indigo-600 px-1 cursor-pointer">
-                        Accept
-                      </button>
-                      <button className="border-3 border-indigo-600 px-1 cursor-pointer">
-                        Decline
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
