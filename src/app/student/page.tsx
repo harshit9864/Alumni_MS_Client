@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { MessageSquare } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAuth } from "@clerk/nextjs";
+import Link from "next/link";
 
 interface Mentorship {
   _id: number;
@@ -81,7 +82,9 @@ export default function Student() {
                   <h3 className="text-lg font-semibold">
                     My Mentorship Requests
                   </h3>
-                  <Button size="sm">Find Mentors</Button>
+                  <Button size="sm">
+                    <Link href="/student/findalumni">Find Mentors </Link>
+                  </Button>
                 </div>
               </CardHeader>
               <CardContent>

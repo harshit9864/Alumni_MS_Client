@@ -4,7 +4,7 @@ import { useAuth } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
 
 interface Mentorship {
-  _id: number;
+  _id: string;
   studentInfo: {
     fullName: string;
   };
@@ -32,6 +32,7 @@ export default function Mentorship() {
           throw new Error(result.message || "Something went wrong");
         }
         setMentorships(result.data);
+        console.log(result.data);
         setLoading(false);
       } catch (error) {
         console.log(error);
@@ -40,6 +41,37 @@ export default function Mentorship() {
     };
     fetchMentorship();
   }, []);
+
+  const handleStatusChange = async (
+    id: string,
+    newStatus: "accepted" | "declined"
+  ) => {
+    const token = await getToken();
+    try {
+      const res = await fetch(
+        `http://localhost:8080/alumni/mentorships/${id}/status`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ status: newStatus }),
+        }
+      );
+
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.message || "Failed to update status");
+
+      // Update UI instantly without refetching everything
+      setMentorships((prev) =>
+        prev.map((m) => (m._id === id ? { ...m, status: newStatus } : m))
+      );
+    } catch (error) {
+      console.error(error);
+      alert("Failed to update status");
+    }
+  };
 
   return (
     <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
@@ -76,10 +108,20 @@ export default function Mentorship() {
                     {request.status}
                     {request.status === "pending" && (
                       <div className="flex space-x-2">
-                        <button className="border-3 border-indigo-600 px-1 cursor-pointer">
+                        <button
+                          className="border-3 border-indigo-600 px-1 cursor-pointer"
+                          onClick={() =>
+                            handleStatusChange(request._id, "accepted")
+                          }
+                        >
                           Accept
                         </button>
-                        <button className="border-3 border-indigo-600 px-1 cursor-pointer">
+                        <button
+                          className="border-3 border-indigo-600 px-1 cursor-pointer"
+                          onClick={() =>
+                            handleStatusChange(request._id, "declined")
+                          }
+                        >
                           Decline
                         </button>
                       </div>

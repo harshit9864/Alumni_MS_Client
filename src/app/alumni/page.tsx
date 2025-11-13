@@ -68,7 +68,7 @@ export default function Alumni() {
           <div>
             <div className="h-auto w-auto border-2 border-sky-200 rounded-md">
               <div className="px-4 my-5 ">
-                <p className="text-xl font-bold ">Mentorship Requests</p>
+                <p className="text-xl font-bold ">Mentorship Connections</p>
                 <p className="text-lg font-semibold ">{mentorship}</p>
               </div>
             </div>
