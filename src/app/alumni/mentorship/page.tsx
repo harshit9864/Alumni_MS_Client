@@ -16,6 +16,7 @@ interface Mentorship {
 export default function Mentorship() {
   const [mentorships, setMentorships] = useState<Mentorship[]>([]);
   const [loading, setLoading] = useState(true);
+  const [statusLoading, setStatusLoading] = useState(false);
   const { getToken } = useAuth();
 
   useEffect(() => {
@@ -47,6 +48,7 @@ export default function Mentorship() {
     newStatus: "accepted" | "declined"
   ) => {
     const token = await getToken();
+    setStatusLoading(true);
     try {
       const res = await fetch(
         `http://localhost:8080/alumni/mentorships/${id}/status`,
@@ -67,9 +69,11 @@ export default function Mentorship() {
       setMentorships((prev) =>
         prev.map((m) => (m._id === id ? { ...m, status: newStatus } : m))
       );
+      setStatusLoading(false);
     } catch (error) {
       console.error(error);
       alert("Failed to update status");
+      setStatusLoading(false);
     }
   };
 
@@ -109,7 +113,10 @@ export default function Mentorship() {
                     {request.status === "pending" && (
                       <div className="flex space-x-2">
                         <button
-                          className="border-3 border-indigo-600 px-1 cursor-pointer"
+                          disabled={statusLoading}
+                          className="px-3 py-1 rounded-md border border-indigo-600 text-indigo-600 
+    hover:bg-indigo-600 hover:text-white transition-all duration-200 
+    disabled:opacity-50 disabled:cursor-not-allowed"
                           onClick={() =>
                             handleStatusChange(request._id, "accepted")
                           }
@@ -117,7 +124,10 @@ export default function Mentorship() {
                           Accept
                         </button>
                         <button
-                          className="border-3 border-indigo-600 px-1 cursor-pointer"
+                          disabled={statusLoading}
+                          className="px-3 py-1 rounded-md border border-indigo-600 text-indigo-600 
+    hover:bg-indigo-600 hover:text-white transition-all duration-200 
+    disabled:opacity-50 disabled:cursor-not-allowed"
                           onClick={() =>
                             handleStatusChange(request._id, "declined")
                           }
