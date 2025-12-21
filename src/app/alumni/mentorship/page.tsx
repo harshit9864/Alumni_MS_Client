@@ -1,12 +1,15 @@
 "use client";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useAuth } from "@clerk/nextjs";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 interface Mentorship {
   _id: string;
   studentInfo: {
     fullName: string;
+    userId: string;
   };
   purpose: string;
   status: string;
@@ -17,7 +20,7 @@ export default function Mentorship() {
   const [mentorships, setMentorships] = useState<Mentorship[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusLoading, setStatusLoading] = useState(false);
-  const { getToken } = useAuth();
+  const { getToken, userId } = useAuth();
 
   useEffect(() => {
     const fetchMentorship = async () => {
@@ -34,6 +37,7 @@ export default function Mentorship() {
         }
         setMentorships(result.data);
         console.log(result.data);
+        console.log(userId);
         setLoading(false);
       } catch (error) {
         console.log(error);
@@ -136,6 +140,16 @@ export default function Mentorship() {
                         </button>
                       </div>
                     )}
+                    {request.status === "accepted" &&
+                      request.studentInfo.userId && (
+                        <Button size="sm" variant="outline" asChild>
+                          <Link
+                            href={`/alumni/chat/${request.studentInfo.userId}`}
+                          >
+                            Start Chat
+                          </Link>
+                        </Button>
+                      )}
                   </div>
                 </div>
               ))}

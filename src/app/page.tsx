@@ -37,9 +37,7 @@ export default async function HomePage() {
   if (!userId) {
     redirect("/sign-in");
   }
-
-  // 2️⃣ Get user info from Clerk
-  const user = await currentUser();
+ 
   const role = sessionClaims?.metadata.role as string | undefined;
 
   // 3️⃣ Redirect based on role

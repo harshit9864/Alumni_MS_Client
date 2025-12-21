@@ -9,6 +9,7 @@ import Link from "next/link";
 
 interface Mentorship {
   _id: number;
+  alumniUserId: string;
   alumniInfo: {
     fullName: string;
   };
@@ -20,12 +21,22 @@ interface Mentorship {
 export default function Student() {
   const [mentorships, setMentorships] = useState<Mentorship[]>([]);
   const [loading, setLoading] = useState(true);
-  const { getToken } = useAuth();
+  const { getToken, userId } = useAuth();
+
+  // ✅ FIX: Only log when userId actually changes
+  useEffect(() => {
+    if (userId) {
+      console.log("Current User ID:", userId);
+    }
+  }, [userId]);
 
   useEffect(() => {
     const fetchProfile = async () => {
-      const token = await getToken();
+      // 🛡️ Safety check: Don't fetch if there is no user yet
+      if (!userId) return;
+
       try {
+        const token = await getToken();
         const res = await fetch("http://localhost:8080/student/profile", {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -33,17 +44,20 @@ export default function Student() {
         });
 
         const result = await res.json();
+        console.log(result)
         if (!res.ok) {
           throw new Error(result.message || "something went wrong");
         }
         setMentorships(result.data ?? []);
-        setLoading(false);
       } catch (err) {
         console.error(err);
+      } finally {
+        setLoading(false); // ✅ Good Practice: Put loading false in finally to run even if error occurs
       }
     };
+
     fetchProfile();
-  }, []);
+  }, [getToken, userId]); // ✅ Added dependencies to ensure fetch runs if auth state changes
 
   return (
     <>
@@ -124,8 +138,12 @@ export default function Student() {
                             {request.status}
                           </Badge>
                           {request.status === "accepted" && (
-                            <Button size="sm" variant="outline">
-                              Start Chat
+                            <Button size="sm" variant="outline" asChild>
+                              <Link
+                                href={`/student/chat/${request.alumniUserId}`}
+                              >
+                                Start Chat
+                              </Link>
                             </Button>
                           )}
                         </div>
