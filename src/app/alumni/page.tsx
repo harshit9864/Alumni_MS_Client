@@ -3,12 +3,12 @@ import { useAuth } from "@clerk/nextjs";
 import BlogPublishForm from "../components/blogPublish";
 import { useEffect, useState } from "react";
 
-
 export default function Alumni() {
   const { getToken } = useAuth();
   const [eventsJoined, setEventsJoined] = useState(0);
   const [mentorship, setMentorship] = useState(0);
-  
+  const [blogs, setBlogs] = useState(0);
+
   useEffect(() => {
     const fetchAlumni = async () => {
       try {
@@ -26,22 +26,23 @@ export default function Alumni() {
         const result = await response.json();
 
         // safely extract lengths
-        const joinedCount = result?.data?.eventsJoined?.length ;
-        const mentorshipCount = result?.data?.mentorship?.length ;
+        const joinedCount = result?.data?.eventsJoined?.length;
+        const mentorshipCount = result?.data?.mentorship?.length;
+        const blogsCount = result?.data?.blogs?.length;
 
         // update state
         setEventsJoined(joinedCount);
         setMentorship(mentorshipCount);
+        setBlogs(blogsCount);
 
-        console.log(result);
-        
+        // console.log(result);
       } catch (error) {
         console.error("Error fetching alumni:", error);
       }
     };
 
     fetchAlumni();
-  }, [getToken]);
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -61,7 +62,7 @@ export default function Alumni() {
             <div className="h-auto w-auto border-2 border-sky-200 rounded-md">
               <div className="px-4 my-5 ">
                 <p className="text-xl font-bold ">Blogs Published</p>
-                <p className="text-lg font-semibold ">3</p>
+                <p className="text-lg font-semibold ">{blogs}</p>
               </div>
             </div>
           </div>

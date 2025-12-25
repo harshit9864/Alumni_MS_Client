@@ -67,7 +67,11 @@ export default function AlumniCard({
 
   return (
     <div className="w-full">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      
+        {events.length == 0 ? (
+          <p className="text-black text-center">No Upcoming Events</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {events.map((event) => {
           const hasJoined = Alumni.eventsJoined.includes(event._id);
           return (
@@ -82,11 +86,11 @@ export default function AlumniCard({
                     onClick={() => !hasJoined && void handleClick(event._id)}
                     disabled={hasJoined}
                     className={`px-4 py-2 rounded-md font-medium transition 
-                      ${
-                        hasJoined
-                          ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                          : "bg-blue-600 text-white hover:bg-blue-700 cursor-pointer"
-                      }`}
+                    ${
+                      hasJoined
+                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        : "bg-blue-600 text-white hover:bg-blue-700 cursor-pointer"
+                    }`}
                   >
                     {hasJoined ? "Joined" : "Join Event"}
                   </button>
@@ -99,6 +103,7 @@ export default function AlumniCard({
           );
         })}
       </div>
+        )}
     </div>
   );
 }

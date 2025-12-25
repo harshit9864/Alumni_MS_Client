@@ -91,42 +91,46 @@ export default function Chat({
   };
 
   return (
-    <div className="border rounded p-4 w-full max-w-xl bg-white">
-      <div className="h-64 overflow-y-auto flex flex-col justify-center items-center">
-        {messages.length === 0 ? (
-          <p className="text-gray-400 text-sm">No messages yet. Say hello 👋</p>
-        ) : (
-          <div className="w-full space-y-2">
-            {messages.map((m) => (
-              <div
-                key={m._id}
-                className={`p-2 rounded max-w-xs ${
-                  m.sender === peerUserId
-                    ? "bg-gray-100 mr-auto"
-                    : "bg-indigo-100 ml-auto"
-                }`}
-              >
-                {m.text}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+    <>
+      <div className="border rounded p-4 w-full max-w-xl bg-white">
+        <div className="h-64 overflow-y-auto flex flex-col justify-center items-center">
+          {messages.length === 0 ? (
+            <p className="text-gray-400 text-sm">
+              No messages yet. Say hello 👋
+            </p>
+          ) : (
+            <div className="w-full space-y-2">
+              {messages.map((m) => (
+                <div
+                  key={m._id}
+                  className={`p-2 rounded max-w-xs ${
+                    m.sender === peerUserId
+                      ? "bg-gray-100 mr-auto"
+                      : "bg-indigo-100 ml-auto"
+                  }`}
+                >
+                  {m.text}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
-      <div className="flex gap-2 mt-2">
-        <input
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          className="border p-2 flex-1 rounded"
-          placeholder="Type a message..."
-        />
-        <button
-          onClick={sendMessage}
-          className="bg-indigo-600 text-white px-4 rounded"
-        >
-          Send
-        </button>
+        <div className="flex gap-2 mt-2">
+          <input
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            className="border p-2 flex-1 rounded"
+            placeholder="Type a message..."
+          />
+          <button
+            onClick={sendMessage}
+            className="bg-indigo-600 text-white px-4 rounded"
+          >
+            Send
+          </button>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

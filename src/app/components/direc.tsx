@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import FetchAlumni from "@/lib/api/alumni";
+import { useAuth } from "@clerk/nextjs";
 
 export interface Alumni {
   fullName: string;
@@ -12,18 +14,17 @@ export interface Alumni {
 
 export default function Direc() {
   const [alumnis, setAlumnis] = useState<Alumni[]>([]);
+  const { getToken } = useAuth();
 
   useEffect(() => {
     const fetchAlumni = async () => {
+      const token = await getToken();
       try {
-        const res = await fetch("http://localhost:8080/api/direc");
-        if (!res.ok) {
-          throw new Error("something went wrong");
-        }
-        const result = await res.json();
-        setAlumnis(result.data);
+        const alumni = await FetchAlumni(token || "","admin");
+        setAlumnis(alumni.data);
+        console.log(alumni.data);
       } catch (error) {
-        alert(error);
+        console.log(error);
       }
     };
     fetchAlumni();

@@ -1,13 +1,16 @@
 import AlumniCard from "@/app/components/alumniCard";
 import { auth } from "@clerk/nextjs/server";
-// import { useAuth } from "@clerk/clerk-react";
 
 export default async function AlEvents() {
   const { getToken } = await auth();
   const token = await getToken();
   try {
     const [eventsRes, alumniRes] = await Promise.all([
-      fetch("http://localhost:8080/events"),
+      fetch("http://localhost:8080/alumni/fetchEvents", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }),
       fetch("http://localhost:8080/alumni/sync", {
         headers: {
           Authorization: `Bearer ${token}`,

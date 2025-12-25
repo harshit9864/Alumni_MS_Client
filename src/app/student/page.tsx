@@ -44,7 +44,7 @@ export default function Student() {
         });
 
         const result = await res.json();
-        console.log(result)
+        console.log(result);
         if (!res.ok) {
           throw new Error(result.message || "something went wrong");
         }
@@ -76,7 +76,7 @@ export default function Student() {
               <div className="h-auto w-auto border-2 border-sky-200 rounded-md">
                 <div className="px-4 my-5 ">
                   <p className="text-xl font-bold ">Alumni Connections</p>
-                  <p className="text-lg font-semibold ">3</p>
+                  <p className="text-lg font-semibold ">0</p>
                 </div>
               </div>
             </div>
@@ -84,7 +84,7 @@ export default function Student() {
               <div className="h-auto w-auto border-2 border-sky-200 rounded-md">
                 <div className="px-4 my-5 ">
                   <p className="text-xl font-bold ">Mentorship Request</p>
-                  <p className="text-lg font-semibold ">1,00,000</p>
+                  <p className="text-lg font-semibold ">0</p>
                 </div>
               </div>
             </div>
@@ -140,7 +140,12 @@ export default function Student() {
                           {request.status === "accepted" && (
                             <Button size="sm" variant="outline" asChild>
                               <Link
-                                href={`/student/chat/${request.alumniUserId}`}
+                                href={{
+                                  pathname: `/student/chat/${request.alumniUserId}`,
+                                  query: {
+                                    name: request.alumniInfo.fullName,
+                                  },
+                                }}
                               >
                                 Start Chat
                               </Link>

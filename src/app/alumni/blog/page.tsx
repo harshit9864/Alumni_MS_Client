@@ -22,7 +22,7 @@ const fallbackPosts = [
 ];
 
 export default async function Page() {
-  const { getToken,userId } = await auth();
+  const { getToken } = await auth();
   const token = await getToken();
   let posts = fallbackPosts;
 
@@ -34,14 +34,13 @@ export default async function Page() {
       cache: "no-store", // optional: ensures fresh data
     });
 
+    const result = await response.json();
     if (!response.ok) {
-      const result = await response.json();
       throw new Error(result.error || "Failed to fetch blogs");
     }
 
-    const result = await response.json();
     // console.log(result,userId);
-    posts = result.data;
+    posts = result?.data;
   } catch (error) {
     console.error("Error fetching blogs:", error);
   }

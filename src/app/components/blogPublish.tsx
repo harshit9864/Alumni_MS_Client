@@ -99,7 +99,14 @@ export default function BlogPublishForm() {
             <Input
               type="file"
               name="image"
+              placeholder="Add image for your blog"
               value={formData.image}
+              onChange={handleChange}
+            />
+            <Input
+              type="date"
+              name="date"
+              value={formData.date}
               onChange={handleChange}
             />
             <Textarea

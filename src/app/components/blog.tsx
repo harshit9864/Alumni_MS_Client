@@ -15,8 +15,9 @@ interface BlogCardGridProps {
 }
 
 export default function BlogCardGrid({ posts }: BlogCardGridProps) {
-  return (
-    posts.length === 0 ? <h1>no blogs</h1> : 
+  return posts.length === 0 ? (
+    <h1>no blogs</h1>
+  ) : (
     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 p-6">
       {posts?.map((post, index) => (
         <Card
@@ -42,7 +43,8 @@ export default function BlogCardGrid({ posts }: BlogCardGridProps) {
                 <User className="w-4 h-4" /> {post.authorName}
               </span>
               <span className="flex items-center gap-1">
-                <Calendar className="w-4 h-4" /> {post.date}
+                <Calendar className="w-4 h-4" />{" "}
+                {new Date(post.date).toLocaleDateString()}
               </span>
             </div>
             <Button variant="outline" size="sm" className="w-full mt-3">

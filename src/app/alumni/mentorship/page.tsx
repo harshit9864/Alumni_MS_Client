@@ -113,7 +113,7 @@ export default function Mentorship() {
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    {request.status}
+                    {/* {request.status} */}
                     {request.status === "pending" && (
                       <div className="flex space-x-2">
                         <button
@@ -144,7 +144,12 @@ export default function Mentorship() {
                       request.studentInfo.userId && (
                         <Button size="sm" variant="outline" asChild>
                           <Link
-                            href={`/alumni/chat/${request.studentInfo.userId}`}
+                            href={{
+                              pathname: `/alumni/chat/${request?.studentInfo?.userId}`,
+                              query: {
+                                name: request?.studentInfo?.fullName,
+                              },
+                            }}
                           >
                             Start Chat
                           </Link>

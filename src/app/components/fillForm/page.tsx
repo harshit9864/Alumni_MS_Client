@@ -9,7 +9,9 @@ export default function UserForm() {
     passoutYear: "",
     email: "",
     interests: "",
+    college: "",
   });
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { getToken } = useAuth();
 
@@ -19,11 +21,13 @@ export default function UserForm() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    setLoading(true);
     const payload = {
       fullName: formData.fullName,
       passoutYear: Number(formData.passoutYear),
       email: formData.email,
       interests: formData.interests.split(",").map((i) => i.trim()),
+      college: formData.college.toUpperCase(),
     };
     const token = await getToken();
 
@@ -46,6 +50,7 @@ export default function UserForm() {
       router.push("/student");
     } catch (error) {
       console.log(error);
+      setLoading(false);
     }
   }
 
@@ -63,6 +68,20 @@ export default function UserForm() {
             type="text"
             name="fullName"
             value={formData.fullName}
+            onChange={handleChange}
+            required
+            className="w-full p-3 border border-slate-300 rounded-xl focus:outline-none focus:ring focus:ring-slate-400"
+          />
+        </div>
+
+        <div>
+          <label className="block mb-1 text-slate-700">
+            Name of College/University
+          </label>
+          <input
+            type="text"
+            name="college"
+            value={formData.college}
             onChange={handleChange}
             required
             className="w-full p-3 border border-slate-300 rounded-xl focus:outline-none focus:ring focus:ring-slate-400"
@@ -111,7 +130,7 @@ export default function UserForm() {
           type="submit"
           className="w-full bg-slate-800 text-white py-3 rounded-xl hover:bg-slate-900 transition"
         >
-          Submit
+          {loading ? "Submiting..." : "Submit"}
         </button>
       </form>
     </div>

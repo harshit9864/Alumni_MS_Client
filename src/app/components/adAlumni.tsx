@@ -1,14 +1,22 @@
 "use client";
 
+import { useAuth } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
 
 export default function AdAlumni() {
   const [totalDocuments, setTotalDocuments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const { getToken } = useAuth();
+
   useEffect(() => {
     const fetchTotal = async () => {
+      const token = await getToken();
       try {
-        const result = await fetch("http://localhost:8080/api/totalAlumni");
+        const result = await fetch("http://localhost:8080/api/totalAlumni", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
         const res = await result.json();
         if (!result.ok) {
@@ -47,12 +55,13 @@ export default function AdAlumni() {
       alert("All fields are required");
       return;
     }
-
+    const token = await getToken();
     try {
       const response = await fetch("http://localhost:8080/api/addAlumni", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(formData),
       });

@@ -14,7 +14,9 @@ export default function SelectRole({
     startTransition(async () => {
       await updateUser(role);
       if (role == "student") {
-        redirect("/student/fillForm");
+        redirect("/components/fillForm");
+      } else if (role === "admin") {
+        redirect("/components/adminForm");
       }
       redirect(`/${role}`);
     });

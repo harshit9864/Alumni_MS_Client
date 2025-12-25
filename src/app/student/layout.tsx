@@ -18,8 +18,11 @@ export default function layout({ children }: { children: ReactNode }) {
             <Link href="/student/findalumni" className="font-semibold">
               Find Alumni
             </Link>
+            <Link href="/student/blogs" className="font-semibold">
+              blogs
+            </Link>
           </div>
-          <button>
+          <button title="User account menu">
             <UserButton />
           </button>
         </div>

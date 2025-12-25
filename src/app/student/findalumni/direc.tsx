@@ -22,8 +22,9 @@ export default function Direc() {
 
   useEffect(() => {
     const fetchAlumni = async () => {
+      const token = await getToken();
       try {
-        const alumni = await FetchAlumni();
+        const alumni = await FetchAlumni(token || "","student");
         setAlumnis(alumni.data);
         console.log(alumni.data);
       } catch (error) {
