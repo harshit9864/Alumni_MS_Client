@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, User } from "lucide-react";
+import { Calendar, User, ImageOff } from "lucide-react";
 
 interface BlogPost {
   title: string;
@@ -16,7 +16,7 @@ interface BlogCardGridProps {
 
 export default function BlogCardGrid({ posts }: BlogCardGridProps) {
   return posts.length === 0 ? (
-    <h1>no blogs</h1>
+    <p className="text-black text-center">No Blogs</p>
   ) : (
     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 p-6">
       {posts?.map((post, index) => (
@@ -25,11 +25,18 @@ export default function BlogCardGrid({ posts }: BlogCardGridProps) {
           key={post.title}
         >
           <div className="h-48 overflow-hidden">
-            <img
-              src={post.image ? post.image : "null"}
-              alt={post.title}
-              className="h-full w-full object-cover hover:scale-105 transition-transform duration-500"
-            />
+            {post.image ? (
+              <img
+                src={post.image}
+                alt={post.title}
+                className="h-full w-full object-cover hover:scale-105 transition-transform duration-500"
+              />
+            ) : (
+              <div className="flex flex-col items-center text-gray-400">
+                <ImageOff className="w-8 h-8 mb-2" />
+                <span className="text-xs">No Image</span>
+              </div>
+            )}
           </div>
           <CardHeader>
             <CardTitle className="text-lg font-semibold line-clamp-2">
