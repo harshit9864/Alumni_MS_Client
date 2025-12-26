@@ -4,15 +4,30 @@ import BlogPublishForm from "../components/blogPublish";
 import { useEffect, useState } from "react";
 
 export default function Alumni() {
-  const { getToken } = useAuth();
+  // 1. Destructure isLoaded and isSignedIn
+  const { getToken, isLoaded, isSignedIn } = useAuth();
+
   const [eventsJoined, setEventsJoined] = useState(0);
   const [mentorship, setMentorship] = useState(0);
   const [blogs, setBlogs] = useState(0);
 
   useEffect(() => {
+    // 2. Add a guard clause.
+    // If Clerk isn't loaded or user isn't signed in, STOP. Do not fetch yet.
+    if (!isLoaded || !isSignedIn) {
+      return;
+    }
+
     const fetchAlumni = async () => {
       try {
-        var token = await getToken();
+        const token = await getToken();
+
+        // Safety check: ensure token exists before sending
+        if (!token) {
+          console.log("No token available yet");
+          return;
+        }
+
         const response = await fetch("http://localhost:8080/alumni/sync", {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -26,23 +41,26 @@ export default function Alumni() {
         const result = await response.json();
 
         // safely extract lengths
-        const joinedCount = result?.data?.eventsJoined?.length;
-        const mentorshipCount = result?.data?.mentorship?.length;
-        const blogsCount = result?.data?.blogs?.length;
+        const joinedCount = result?.data?.eventsJoined?.length || 0;
+        const mentorshipCount = result?.data?.mentorship?.length || 0;
+        const blogsCount = result?.data?.blogs?.length || 0;
 
-        // update state
         setEventsJoined(joinedCount);
         setMentorship(mentorshipCount);
         setBlogs(blogsCount);
-
-        // console.log(result);
       } catch (error) {
         console.error("Error fetching alumni:", error);
       }
     };
 
     fetchAlumni();
-  }, []);
+
+    // 3. Add isLoaded and isSignedIn to the dependency array
+    // This ensures the effect re-runs as soon as Clerk finishes loading.
+  }, [isLoaded, isSignedIn]);
+
+  // Optional: Show a loading state while Clerk initializes
+  if (!isLoaded) return <div>Loading...</div>;
 
   return (
     <div className="min-h-screen bg-gray-50">

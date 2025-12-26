@@ -154,7 +154,7 @@ export default function Direc() {
               className="w-full mb-4 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <p className="text-lg font-bold text-blue-600 mb-6">
-              {selectedAlumni.fullName}?
+              {selectedAlumni.fullName}
             </p>
             <div className="flex justify-end gap-3">
               <button

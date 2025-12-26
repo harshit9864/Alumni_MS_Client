@@ -34,7 +34,7 @@ export default function Chat({
         }
       );
       const result = await res.json();
-      console.log(result);
+      // console.log(result);
       if (result.success) {
         const normalized = result.data.map((m: any) => ({
           _id: m._id,

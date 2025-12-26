@@ -104,6 +104,8 @@ export default function Student() {
               <CardContent>
                 {loading ? (
                   <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-indigo-500"></div>
+                ) : mentorships.length == 0 ? (
+                  <p className="text-black text-center">No Requests </p>
                 ) : (
                   <div className="space-y-4">
                     {mentorships.map((request) => (
