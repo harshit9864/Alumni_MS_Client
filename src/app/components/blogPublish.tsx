@@ -4,22 +4,23 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@clerk/nextjs";
+import { PenTool, Image as ImageIcon, Loader2, User, Type, FileText } from "lucide-react";
 
 interface BlogPostState {
   title: string;
   authorName: string;
   date: string;
-  image: File | null; // Changed from string to File object
+  image: File | null;
   summary: string;
   content: string;
 }
 
 export default function BlogPublishForm() {
   const { getToken } = useAuth();
-
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<BlogPostState>({
     title: "",
     authorName: "",
@@ -29,15 +30,9 @@ export default function BlogPublishForm() {
     content: "",
   });
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
-
     if (type === "file") {
-      // TypeScript requires a cast to HTMLInputElement to access .files
       const fileInput = e.target as HTMLInputElement;
       setFormData((prev) => ({
         ...prev,
@@ -53,40 +48,25 @@ export default function BlogPublishForm() {
     setIsSubmitting(true);
     const token = await getToken();
 
-    // 1. Create a FormData object
     const data = new FormData();
     data.append("title", formData.title);
     data.append("authorName", formData.authorName);
     data.append("date", formData.date);
     data.append("summary", formData.summary);
     data.append("content", formData.content);
-
-    // Only append image if one exists
-    if (formData.image) {
-      data.append("image", formData.image);
-    }
+    if (formData.image) data.append("image", formData.image);
 
     try {
       const response = await fetch("http://localhost:8080/alumni/post-blog", {
         method: "POST",
-        headers: {
-          // IMPORTANT: Do NOT set Content-Type here.
-          // The browser sets it to multipart/form-data with the boundary automatically.
-          Authorization: `Bearer ${token}`,
-        },
-        body: data, // Pass the FormData object directly
+        headers: { Authorization: `Bearer ${token}` },
+        body: data,
       });
 
       const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Something went wrong");
 
-      if (!response.ok) {
-        throw new Error(result.error || "something went wrong");
-      }
-
-      console.log("Success:", result);
       alert("Blog published successfully!");
-
-      // Reset form
       setFormData({
         title: "",
         authorName: "",
@@ -104,19 +84,27 @@ export default function BlogPublishForm() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-6">
-      <Card className="shadow-lg rounded-2xl">
-        <CardHeader>
-          <CardTitle className="text-2xl font-semibold">
-            Publish a New Blog Post
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Title */}
+    <Card className="border-zinc-200 shadow-lg">
+      <CardHeader className="bg-zinc-50/50 border-b border-zinc-100">
+        <div className="flex items-center gap-3">
+            <div className="bg-white p-2 rounded-full border border-zinc-200 shadow-sm">
+                <PenTool className="w-5 h-5 text-violet-600" />
+            </div>
+            <div>
+                <CardTitle className="text-xl">Publish New Blog</CardTitle>
+                <CardDescription>Share your knowledge and experiences with the community.</CardDescription>
+            </div>
+        </div>
+      </CardHeader>
+      
+      <CardContent className="p-6 md:p-8">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          
+          {/* Row 1: Title & Author */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="title" className="text-sm font-medium">
-                Blog Title
+              <Label htmlFor="title" className="flex items-center gap-2 text-zinc-700">
+                <Type className="w-4 h-4 text-violet-500" /> Blog Title
               </Label>
               <Input
                 id="title"
@@ -125,28 +113,31 @@ export default function BlogPublishForm() {
                 value={formData.title}
                 onChange={handleChange}
                 required
+                className="focus-visible:ring-violet-500"
               />
             </div>
-
-            {/* Author Name */}
+            
             <div className="space-y-2">
-              <Label htmlFor="authorName" className="text-sm font-medium">
-                Author Name
+              <Label htmlFor="authorName" className="flex items-center gap-2 text-zinc-700">
+                 <User className="w-4 h-4 text-violet-500" /> Author Name
               </Label>
               <Input
                 id="authorName"
                 name="authorName"
-                placeholder="Who is writing this?"
+                placeholder="e.g. John Doe"
                 value={formData.authorName}
                 onChange={handleChange}
                 required
+                className="focus-visible:ring-violet-500"
               />
             </div>
+          </div>
 
-            {/* Image Upload */}
+          {/* Row 2: Image & Date */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="image" className="text-sm font-medium">
-                Cover Image
+              <Label htmlFor="image" className="flex items-center gap-2 text-zinc-700">
+                 <ImageIcon className="w-4 h-4 text-violet-500" /> Cover Image
               </Label>
               <Input
                 id="image"
@@ -154,65 +145,73 @@ export default function BlogPublishForm() {
                 name="image"
                 accept="image/*"
                 onChange={handleChange}
-                className="cursor-pointer"
+                className="cursor-pointer file:text-violet-600 file:font-semibold hover:file:bg-violet-50"
               />
-              <p className="text-xs text-muted-foreground">
-                Supported formats: JPG, PNG, GIF
-              </p>
             </div>
 
-            {/* Date */}
             <div className="space-y-2">
-              <Label htmlFor="date" className="text-sm font-medium">
-                Publish Date
-              </Label>
+              <Label htmlFor="date" className="text-zinc-700">Publish Date</Label>
               <Input
                 id="date"
                 type="date"
                 name="date"
                 value={formData.date}
                 onChange={handleChange}
+                className="focus-visible:ring-violet-500 block"
               />
             </div>
+          </div>
 
-            {/* Summary */}
-            <div className="space-y-2">
-              <Label htmlFor="summary" className="text-sm font-medium">
-                Summary
-              </Label>
-              <Textarea
-                id="summary"
-                name="summary"
-                placeholder="Write a short summary (1-2 sentences) to appear on the card."
-                value={formData.summary}
-                onChange={handleChange}
-                rows={2}
-                required
-              />
-            </div>
+          {/* Summary */}
+          <div className="space-y-2">
+            <Label htmlFor="summary" className="text-zinc-700">Short Summary</Label>
+            <Textarea
+              id="summary"
+              name="summary"
+              placeholder="Write a teaser (1-2 sentences) to appear on the blog card."
+              value={formData.summary}
+              onChange={handleChange}
+              rows={2}
+              required
+              className="resize-none focus-visible:ring-violet-500"
+            />
+          </div>
 
-            {/* Content */}
-            <div className="space-y-2">
-              <Label htmlFor="content" className="text-sm font-medium">
-                Full Content
-              </Label>
-              <Textarea
-                id="content"
-                name="content"
-                placeholder="Write your full blog post here..."
-                value={formData.content}
-                onChange={handleChange}
-                rows={8}
-                required
-              />
-            </div>
+          {/* Full Content */}
+          <div className="space-y-2">
+            <Label htmlFor="content" className="flex items-center gap-2 text-zinc-700">
+                <FileText className="w-4 h-4 text-violet-500" /> Full Content
+            </Label>
+            <Textarea
+              id="content"
+              name="content"
+              placeholder="Write your full story here..."
+              value={formData.content}
+              onChange={handleChange}
+              rows={10}
+              required
+              className="focus-visible:ring-violet-500"
+            />
+          </div>
 
-            <Button type="submit" disabled={isSubmitting} className="w-full">
-              {isSubmitting ? "Publishing..." : "Publish Blog"}
+          <div className="pt-2">
+            <Button 
+                type="submit" 
+                disabled={isSubmitting} 
+                className="w-full bg-violet-600 hover:bg-violet-700 text-white font-semibold py-6 shadow-md shadow-violet-200"
+            >
+              {isSubmitting ? (
+                <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Publishing...
+                </>
+              ) : (
+                "Publish Blog Post"
+              )}
             </Button>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
   );
 }

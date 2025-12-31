@@ -1,39 +1,101 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams, useRouter } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
 import Chat from "@/app/components/Chat";
-import { useSearchParams } from "next/navigation";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, MoreVertical, Phone, Video } from "lucide-react";
+import { useEffect, useState } from "react";
+import { socket } from "@/lib/socket";
 
-export default function ChatPage() {
+export default function StudentChatPage() {
   const { alumniUserId } = useParams();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const alumniName = searchParams.get("name");
 
   const { userId } = useAuth();
-  console.log(alumniUserId);
+  const [isOnline, setIsOnline] = useState(false);
 
-  // userId from Clerk = clerkId
+  useEffect(() => {
+    if (!userId) return;
+    socket.auth = { clerkId: userId };
+    socket.connect();
+    socket.on("get_online_users", (users: any[]) => {
+      const isAlumniOnline = users.some((u) => u.userId === alumniUserId);
+      setIsOnline(isAlumniOnline);
+    });
+    return () => {
+      socket.off("get_online_users");
+    };
+  }, [userId, alumniUserId]);
+
   if (!userId || !alumniUserId) return null;
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 gap-2">
-      <div className="sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-2">
+    // 🔴 FIX: Increased subtraction to 9rem to account for Layout Padding + Navbar
+    // This ensures the total height never exceeds the screen.
+    <div className="flex flex-col h-[calc(100vh-9rem)] bg-zinc-50 border border-zinc-200 rounded-xl overflow-hidden shadow-sm">
+      
+      {/* --- Chat Header --- */}
+      <div className="bg-white border-b border-zinc-200 px-4 py-2 flex items-center justify-between shrink-0 h-16 z-20">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-indigo-600 text-white flex items-center justify-center font-semibold">
-            {alumniName?.[0] ?? "U"}
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="md:hidden text-zinc-500" 
+            onClick={() => router.back()}
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+          
+          <div className="relative">
+            <Avatar className="h-10 w-10 border border-zinc-200">
+              <AvatarImage src="" /> 
+              <AvatarFallback className="bg-indigo-100 text-indigo-700 font-bold">
+                {alumniName?.[0]?.toUpperCase() ?? "A"}
+              </AvatarFallback>
+            </Avatar>
+            <span 
+              className={`absolute bottom-0 right-0 w-3 h-3 border-2 border-white rounded-full transition-colors duration-300 ${
+                isOnline ? "bg-emerald-500" : "bg-zinc-300"
+              }`}
+            ></span>
           </div>
+          
           <div>
-            <p className="font-semibold text-gray-900">
-              {alumniName ?? "User"}
+            <h2 className="font-bold text-zinc-900 text-sm md:text-base leading-tight">
+              {alumniName ?? "Alumni"}
+            </h2>
+            <p className={`text-xs font-medium transition-colors duration-300 ${
+              isOnline ? "text-emerald-600" : "text-zinc-400"
+            }`}>
+              {isOnline ? "Online" : "Offline"}
             </p>
           </div>
         </div>
+
+        <div className="flex items-center gap-1">
+          <Button variant="ghost" size="icon" className="text-zinc-400 hover:text-indigo-600">
+            <Phone className="w-5 h-5" />
+          </Button>
+          <Button variant="ghost" size="icon" className="text-zinc-400 hover:text-indigo-600">
+            <Video className="w-5 h-5" />
+          </Button>
+          <Button variant="ghost" size="icon" className="text-zinc-400 hover:text-indigo-600">
+            <MoreVertical className="w-5 h-5" />
+          </Button>
+        </div>
       </div>
-      <Chat
-        clerkId={userId} // 👈 for socket auth
-        peerUserId={alumniUserId as string} // 👈 alumni
-      />
+
+      {/* --- Chat Body --- */}
+      <div className="flex-1 overflow-hidden relative bg-zinc-50/50">
+        <Chat
+          clerkId={userId} 
+          peerUserId={alumniUserId as string} 
+        />
+      </div>
     </div>
   );
 }

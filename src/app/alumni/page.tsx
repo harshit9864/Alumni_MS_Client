@@ -1,99 +1,126 @@
 "use client";
+
 import { useAuth } from "@clerk/nextjs";
 import BlogPublishForm from "../components/blogPublish";
 import { useEffect, useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CalendarCheck, BookOpen, Users, Sparkles } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export default function Alumni() {
-  // 1. Destructure isLoaded and isSignedIn
+export default function AlumniDashboard() {
   const { getToken, isLoaded, isSignedIn } = useAuth();
 
   const [eventsJoined, setEventsJoined] = useState(0);
   const [mentorship, setMentorship] = useState(0);
   const [blogs, setBlogs] = useState(0);
+  const [loadingData, setLoadingData] = useState(true);
 
   useEffect(() => {
-    // 2. Add a guard clause.
-    // If Clerk isn't loaded or user isn't signed in, STOP. Do not fetch yet.
-    if (!isLoaded || !isSignedIn) {
-      return;
-    }
+    if (!isLoaded || !isSignedIn) return;
 
     const fetchAlumni = async () => {
       try {
         const token = await getToken();
-
-        // Safety check: ensure token exists before sending
-        if (!token) {
-          console.log("No token available yet");
-          return;
-        }
+        if (!token) return;
 
         const response = await fetch("http://localhost:8080/alumni/sync", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
 
-        if (!response.ok) {
-          throw new Error("Something went wrong while fetching alumni data");
-        }
+        if (!response.ok) throw new Error("Something went wrong");
 
         const result = await response.json();
-
-        // safely extract lengths
-        const joinedCount = result?.data?.eventsJoined?.length || 0;
-        const mentorshipCount = result?.data?.mentorship?.length || 0;
-        const blogsCount = result?.data?.blogs?.length || 0;
-
-        setEventsJoined(joinedCount);
-        setMentorship(mentorshipCount);
-        setBlogs(blogsCount);
+        
+        setEventsJoined(result?.data?.eventsJoined?.length || 0);
+        setMentorship(result?.data?.mentorship?.length || 0);
+        setBlogs(result?.data?.blogs?.length || 0);
       } catch (error) {
         console.error("Error fetching alumni:", error);
+      } finally {
+        setLoadingData(false);
       }
     };
 
     fetchAlumni();
+  }, [isLoaded, isSignedIn, getToken]);
 
-    // 3. Add isLoaded and isSignedIn to the dependency array
-    // This ensures the effect re-runs as soon as Clerk finishes loading.
-  }, [isLoaded, isSignedIn]);
-
-  // Optional: Show a loading state while Clerk initializes
-  if (!isLoaded) return <div>Loading...</div>;
+  if (!isLoaded) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-600"></div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Alumni Dashboard</h1>
-          <p className="text-gray-600">Join events and connect with students</p>
+    <div className="space-y-8 animate-in fade-in duration-700">
+      
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-zinc-200 pb-6">
+        <div>
+          <h1 className="text-3xl font-bold text-zinc-900 tracking-tight flex items-center gap-2">
+            Alumni Dashboard <Sparkles className="w-5 h-5 text-violet-500" />
+          </h1>
+          <p className="text-zinc-500 mt-1">
+            Track your contributions and connect with students.
+          </p>
         </div>
-        <div className="grid md:grid-cols-3 gap-3">
-          <div className="h-auto w-auto border-2 border-sky-200 rounded-md">
-            <div className="px-4 my-5 ">
-              <p className="text-xl font-bold ">Events Joined</p>
-              <p className="text-lg font-semibold ">{eventsJoined}</p>
-            </div>
-          </div>
-          <div>
-            <div className="h-auto w-auto border-2 border-sky-200 rounded-md">
-              <div className="px-4 my-5 ">
-                <p className="text-xl font-bold ">Blogs Published</p>
-                <p className="text-lg font-semibold ">{blogs}</p>
-              </div>
-            </div>
-          </div>
-          <div>
-            <div className="h-auto w-auto border-2 border-sky-200 rounded-md">
-              <div className="px-4 my-5 ">
-                <p className="text-xl font-bold ">Mentorship Connections</p>
-                <p className="text-lg font-semibold ">{mentorship}</p>
-              </div>
-            </div>
-          </div>
-        </div>
+      </div>
 
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        {/* Events Card */}
+        <Card className="border-zinc-200 shadow-sm hover:shadow-md transition-all">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-zinc-500">Events Joined</CardTitle>
+            <div className="p-2 bg-violet-100 rounded-lg">
+               <CalendarCheck className="h-4 w-4 text-violet-600" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            {loadingData ? <Skeleton className="h-8 w-16" /> : (
+              <div className="text-3xl font-bold text-zinc-900">{eventsJoined}</div>
+            )}
+            <p className="text-xs text-zinc-500 mt-1">Participated events</p>
+          </CardContent>
+        </Card>
+
+        {/* Blogs Card */}
+        <Card className="border-zinc-200 shadow-sm hover:shadow-md transition-all">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-zinc-500">Blogs Published</CardTitle>
+            <div className="p-2 bg-fuchsia-100 rounded-lg">
+               <BookOpen className="h-4 w-4 text-fuchsia-600" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            {loadingData ? <Skeleton className="h-8 w-16" /> : (
+              <div className="text-3xl font-bold text-zinc-900">{blogs}</div>
+            )}
+            <p className="text-xs text-zinc-500 mt-1">Articles shared</p>
+          </CardContent>
+        </Card>
+
+        {/* Mentorship Card */}
+        <Card className="border-zinc-200 shadow-sm hover:shadow-md transition-all">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-zinc-500">Mentorships</CardTitle>
+            <div className="p-2 bg-emerald-100 rounded-lg">
+               <Users className="h-4 w-4 text-emerald-600" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            {loadingData ? <Skeleton className="h-8 w-16" /> : (
+              <div className="text-3xl font-bold text-zinc-900">{mentorship}</div>
+            )}
+            <p className="text-xs text-zinc-500 mt-1">Active connections</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Blog Form Section */}
+      <div className="mt-10">
         <BlogPublishForm />
       </div>
     </div>
