@@ -86,17 +86,7 @@ export default function AlumniChatPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-400 hover:text-violet-600">
-            <Phone className="w-4 h-4" />
-          </Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-400 hover:text-violet-600">
-            <Video className="w-4 h-4" />
-          </Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-400 hover:text-violet-600">
-            <MoreVertical className="w-4 h-4" />
-          </Button>
-        </div>
+        
       </div>
 
       {/* --- Chat Body --- */}
