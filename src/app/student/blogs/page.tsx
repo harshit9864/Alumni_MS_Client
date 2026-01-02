@@ -32,5 +32,5 @@ export default async function Page() {
     );
   }
 
-  return <BlogCardGrid posts={blogs} />;
+  return <BlogCardGrid posts={blogs} role="student"/>;
 }

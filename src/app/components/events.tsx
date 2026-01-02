@@ -1,36 +1,40 @@
 "use client";
 
-import EventCard from "@/app/components/Card"; // Ensure path matches your folder structure
+import EventCard from "@/app/components/Card"; // Updated import path to match previous steps
 import { useAuth } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
-import { Sparkles, CalendarOff } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton"; // Optional: npx shadcn-ui@latest add skeleton
+import { Sparkles, CalendarOff, Plus } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 
+// Match the interface with your EventCard props
 interface Events {
   _id: string;
   title: string;
-  date: Date;
+  date: string; // Changed to string to match API/JSON response often being a string
   content: string;
-  time?: string; // Optional in case backend doesn't send it
+  time?: string;
 }
 
-export default function EventsPage() {
+export default function Events({ role }: { role?: string }) {
   const [loading, setLoading] = useState(true);
   const [events, setEvents] = useState<Events[]>([]);
   const { getToken } = useAuth();
 
+  // ------------------------------------------------------------------
+  // FETCH DATA
+  // ------------------------------------------------------------------
   useEffect(() => {
     const fetchEvents = async () => {
       try {
         const token = await getToken();
-        const res = await fetch("http://localhost:8080/events", {
+        const res = await fetch("http://localhost:8080/events", { // Or /api/events
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
         const result = await res.json();
         
-        // Ensure result.data is an array before setting
         if (Array.isArray(result.data)) {
           setEvents(result.data);
         } else {
@@ -45,6 +49,25 @@ export default function EventsPage() {
     fetchEvents();
   }, [getToken]);
 
+  // ------------------------------------------------------------------
+  // STATE HANDLERS (Passed to Child Card)
+  // ------------------------------------------------------------------
+  
+  // Remove event from UI after successful delete in Card
+  const handleDelete = (id: string) => {
+    setEvents((prev) => prev.filter((event) => event._id !== id));
+  };
+
+  // Update event in UI after successful edit in Card
+  const handleUpdate = (updatedEvent: Events) => {
+    setEvents((prev) => 
+      prev.map((event) => (event._id === updatedEvent._id ? updatedEvent : event))
+    );
+  };
+
+  // ------------------------------------------------------------------
+  // RENDER
+  // ------------------------------------------------------------------
   return (
     <div className="space-y-8 animate-in fade-in duration-700">
       
@@ -52,17 +75,23 @@ export default function EventsPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-zinc-200 pb-6">
         <div>
           <h1 className="text-3xl font-bold text-zinc-900 tracking-tight flex items-center gap-3">
-            Upcoming Events <Sparkles className="w-6 h-6 text-violet-500" />
+            Manage Events <Sparkles className="w-6 h-6 text-violet-500" />
           </h1>
           <p className="text-zinc-500 mt-2 text-lg">
-            Workshops, webinars, and meetups curated for you.
+            Create, edit, or delete upcoming workshops and webinars.
           </p>
         </div>
+        
+        {/* Optional: Add Event Button (You can implement the create logic separately) */}
+        <Button className="bg-violet-600 hover:bg-violet-700 text-white shadow-md shadow-violet-200">
+          <Plus className="w-4 h-4 mr-2" />
+          Post New Event
+        </Button>
       </div>
 
       {/* --- Content Area --- */}
       {loading ? (
-        // Loading State: Skeletons
+        // Loading State
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3].map((i) => (
             <div key={i} className="flex flex-col space-y-3">
@@ -80,9 +109,9 @@ export default function EventsPage() {
           <div className="w-16 h-16 bg-zinc-100 rounded-full flex items-center justify-center mb-4">
             <CalendarOff className="w-8 h-8 text-zinc-400" />
           </div>
-          <h3 className="text-xl font-semibold text-zinc-900">No Upcoming Events</h3>
+          <h3 className="text-xl font-semibold text-zinc-900">No Events Found</h3>
           <p className="text-zinc-500 max-w-sm mt-2">
-            We are currently planning the next set of events. Check back soon!
+            There are no active events. Click the button above to create one.
           </p>
         </div>
       ) : (
@@ -91,10 +120,15 @@ export default function EventsPage() {
           {events.map((ev) => (
             <EventCard
               key={ev._id}
+              _id={ev._id} 
               title={ev.title}
-              date={ev.date.toString()} // Ensure string format
+              date={ev.date.toString()}
               time={ev.time || "TBD"}
+        
               content={ev.content}
+              role={role}          // 👈 Forces Admin Mode (Edit/Delete buttons visible)
+              onDelete={handleDelete} // 👈 Connects the delete logic 
+              onUpdate={handleUpdate} // 👈 Connects the update logic 
             />
           ))}
         </div>

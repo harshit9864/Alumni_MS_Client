@@ -124,7 +124,7 @@ export default function BlogPublishForm() {
               <Input
                 id="authorName"
                 name="authorName"
-                placeholder="e.g. John Doe"
+                placeholder="e.g. ABC"
                 value={formData.authorName}
                 onChange={handleChange}
                 required

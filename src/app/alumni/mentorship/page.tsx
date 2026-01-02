@@ -1,21 +1,28 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@clerk/nextjs";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { 
-  Check, 
-  X, 
-  MessageCircle, 
-  Clock, 
-  User, 
-  Sparkles, 
+import {
+  Check,
+  X,
+  MessageCircle,
+  Clock,
+  UserX,
+  Sparkles,
   Inbox,
-  Loader2 
+  Loader2,
+  Archive,
 } from "lucide-react";
 
 // ------------------------------------------------------------------
@@ -28,7 +35,7 @@ interface Mentorship {
     userId: string;
   };
   purpose: string;
-  status: "pending" | "accepted" | "declined";
+  status: "pending" | "accepted" | "declined" | "ended";
   date: string;
 }
 
@@ -73,10 +80,10 @@ export default function MentorshipRequests() {
   ) => {
     const token = await getToken();
     setProcessingId(id);
-    
+
     try {
       const res = await fetch(
-        `http://localhost:8080/alumni/mentorships/${id}/status`,
+        `http://localhost:8080/alumni/mentorships/${id}`,
         {
           method: "PATCH",
           headers: {
@@ -101,13 +108,43 @@ export default function MentorshipRequests() {
       setProcessingId(null);
     }
   };
+  const handleEndMentorship = async (id: string) => {
+    if (!confirm("Are you sure you want to end this mentorship?")) return;
+
+    const token = await getToken();
+    setProcessingId(id);
+
+    try {
+      // Assuming DELETE endpoint removes the mentorship record
+      const res = await fetch(
+        `http://localhost:8080/alumni/mentorships/end/${id}`,
+        {
+          method: "PATCH", // Or PATCH if you just change status to "ended"
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!res.ok) throw new Error("Failed to end mentorship");
+
+      // Remove the mentorship from the UI immediately
+      setMentorships((prev) =>
+        prev.filter((m) => (m._id === id ? { ...m, status: "ended" } : m))
+      );
+    } catch (error) {
+      console.error(error);
+      alert("Error ending mentorship");
+    } finally {
+      setProcessingId(null);
+    }
+  };
 
   // ------------------------------------------------------------------
   // UI RENDER
   // ------------------------------------------------------------------
   return (
     <div className="space-y-6 animate-in fade-in duration-700">
-      
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-zinc-200 pb-6">
         <div>
@@ -126,10 +163,11 @@ export default function MentorshipRequests() {
             Pending & Active Requests
           </CardTitle>
           <CardDescription>
-            You have {mentorships.filter(m => m.status === 'pending').length} pending requests.
+            You have {mentorships.filter((m) => m.status === "pending").length}{" "}
+            pending requests.
           </CardDescription>
         </CardHeader>
-        
+
         <CardContent className="p-0">
           {loading ? (
             // Loading Skeletons
@@ -150,9 +188,12 @@ export default function MentorshipRequests() {
               <div className="w-16 h-16 bg-zinc-100 rounded-full flex items-center justify-center mb-4 text-zinc-400">
                 <Inbox className="w-8 h-8" />
               </div>
-              <h3 className="text-lg font-semibold text-zinc-900">No Requests Yet</h3>
+              <h3 className="text-lg font-semibold text-zinc-900">
+                No Requests Yet
+              </h3>
               <p className="text-zinc-500 max-w-sm mt-2">
-                Students haven't sent any mentorship requests yet. Check back later!
+                Students haven't sent any mentorship requests yet. Check back
+                later!
               </p>
             </div>
           ) : (
@@ -169,7 +210,7 @@ export default function MentorshipRequests() {
                     <div className="w-12 h-12 rounded-full bg-violet-100 flex items-center justify-center text-violet-700 font-bold text-lg border border-violet-200 shrink-0">
                       {request.studentInfo.fullName.charAt(0)}
                     </div>
-                    
+
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
                         <h4 className="font-semibold text-zinc-900">
@@ -180,9 +221,11 @@ export default function MentorshipRequests() {
                           {new Date(request.date).toLocaleDateString()}
                         </span>
                       </div>
-                      
+
                       <p className="text-zinc-600 text-sm leading-relaxed max-w-2xl">
-                        <span className="font-medium text-zinc-800">Purpose: </span> 
+                        <span className="font-medium text-zinc-800">
+                          Purpose:{" "}
+                        </span>
                         {request.purpose}
                       </p>
                     </div>
@@ -190,7 +233,6 @@ export default function MentorshipRequests() {
 
                   {/* Right: Actions */}
                   <div className="flex items-center gap-3 shrink-0 self-start md:self-center">
-                    
                     {/* Status: Pending */}
                     {request.status === "pending" && (
                       <div className="flex items-center gap-2">
@@ -198,20 +240,32 @@ export default function MentorshipRequests() {
                           variant="outline"
                           size="sm"
                           disabled={!!processingId}
-                          onClick={() => handleStatusChange(request._id, "declined")}
+                          onClick={() =>
+                            handleStatusChange(request._id, "declined")
+                          }
                           className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 hover:border-red-300"
                         >
-                           {processingId === request._id ? <Loader2 className="w-4 h-4 animate-spin" /> : <X className="w-4 h-4 mr-1" />}
-                           Decline
+                          {processingId === request._id ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <X className="w-4 h-4 mr-1" />
+                          )}
+                          Decline
                         </Button>
                         <Button
                           size="sm"
                           disabled={!!processingId}
-                          onClick={() => handleStatusChange(request._id, "accepted")}
+                          onClick={() =>
+                            handleStatusChange(request._id, "accepted")
+                          }
                           className="bg-violet-600 hover:bg-violet-700 text-white shadow-sm shadow-violet-200"
                         >
-                           {processingId === request._id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4 mr-1" />}
-                           Accept
+                          {processingId === request._id ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Check className="w-4 h-4 mr-1" />
+                          )}
+                          Accept
                         </Button>
                       </div>
                     )}
@@ -220,30 +274,62 @@ export default function MentorshipRequests() {
                     {request.status === "accepted" && (
                       <div className="flex items-center gap-3">
                         <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-emerald-200 shadow-none px-3 py-1">
-                            Accepted
+                          Accepted
                         </Badge>
                         {request.studentInfo.userId && (
-                          <Button size="sm" variant="outline" className="text-violet-600 border-violet-200 hover:bg-violet-50" asChild>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-violet-600 border-violet-200 hover:bg-violet-50"
+                            asChild
+                          >
                             <Link
                               href={{
                                 pathname: `/alumni/chat/${request.studentInfo.userId}`,
                                 query: { name: request.studentInfo.fullName },
                               }}
                             >
-                              <MessageCircle className="w-4 h-4 mr-2" /> Start Chat
+                              <MessageCircle className="w-4 h-4 mr-2" /> Start
+                              Chat
                             </Link>
                           </Button>
                         )}
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          disabled={!!processingId}
+                          onClick={() => handleEndMentorship(request._id)}
+                          className="bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 hover:text-red-700 shadow-none"
+                        >
+                          {processingId === request._id ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <UserX className="w-4 h-4 mr-2" />
+                          )}
+                          End
+                        </Button>
                       </div>
                     )}
 
                     {/* Status: Declined */}
                     {request.status === "declined" && (
-                      <Badge variant="outline" className="bg-zinc-100 text-zinc-500 border-zinc-200">
+                      <Badge
+                        variant="outline"
+                        className="bg-zinc-100 text-zinc-500 border-zinc-200"
+                      >
                         Declined
                       </Badge>
                     )}
 
+                    {request.status === "ended" && (
+                      <Badge
+                        variant="outline"
+                        className="bg-zinc-100 text-zinc-500 border-zinc-200 flex items-center gap-1 pl-2 pr-3 py-1"
+                      >
+                        <Archive className="w-3 h-3" />
+                        Ended
+                      </Badge>
+                    )}
                   </div>
                 </div>
               ))}

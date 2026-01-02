@@ -1,9 +1,24 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MessageSquare, Users, Calendar, ArrowRight, Clock, CheckCircle2, Sparkles } from "lucide-react";
+import {
+  MessageSquare,
+  Users,
+  Calendar,
+  ArrowRight,
+  Clock,
+  CheckCircle2,
+  Sparkles,
+  Archive,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAuth } from "@clerk/nextjs";
 import Link from "next/link";
@@ -18,7 +33,7 @@ interface Mentorship {
     fullName: string;
   };
   purpose: string;
-  status: "pending" | "accepted" | "rejected";
+  status: "pending" | "accepted" | "rejected" | "ended";
   date: string;
 }
 
@@ -26,6 +41,12 @@ export default function StudentDashboard() {
   const [mentorships, setMentorships] = useState<Mentorship[]>([]);
   const [loading, setLoading] = useState(true);
   const { getToken, userId } = useAuth();
+  const stats = {
+    pending: 0,
+    accepted: 0,
+    rejected: 0,
+    ended: 0,
+  };
 
   // --------------------------------------------------------
   // LOGIC (Preserved)
@@ -46,6 +67,12 @@ export default function StudentDashboard() {
         const result = await res.json();
         if (!res.ok) throw new Error(result.message || "something went wrong");
         setMentorships(result.data ?? []);
+        mentorships.forEach((m) => {
+          // This assumes m.status matches one of the keys exactly
+          if (stats[m.status] !== undefined) {
+            stats[m.status]++;
+          }
+        });
       } catch (err) {
         console.error(err);
       } finally {
@@ -55,23 +82,26 @@ export default function StudentDashboard() {
     fetchProfile();
   }, [getToken, userId]);
 
-
   // --------------------------------------------------------
   // UI RENDER
   // --------------------------------------------------------
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      
       {/* --- Page Header --- */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-r from-violet-100 to-white p-6 rounded-2xl border border-violet-100">
         <div>
-          <h1 className="text-3xl font-bold text-zinc-900 tracking-tight">Student Dashboard</h1>
+          <h1 className="text-3xl font-bold text-zinc-900 tracking-tight">
+            Student Dashboard
+          </h1>
           <p className="text-zinc-500 mt-1 flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-violet-500" /> 
+            <Sparkles className="w-4 h-4 text-violet-500" />
             Manage your network and track your progress.
           </p>
         </div>
-        <Button asChild className="bg-violet-600 hover:bg-violet-700 text-white shadow-lg shadow-violet-600/20 border-0">
+        <Button
+          asChild
+          className="bg-violet-600 hover:bg-violet-700 text-white shadow-lg shadow-violet-600/20 border-0"
+        >
           <Link href="/student/findalumni">
             Find New Mentor <ArrowRight className="ml-2 h-4 w-4" />
           </Link>
@@ -80,17 +110,18 @@ export default function StudentDashboard() {
 
       {/* --- Stats Grid --- */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        
         {/* Stat Card 1 */}
         <Card className="border-zinc-200 shadow-sm hover:shadow-md transition-all hover:-translate-y-1">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-zinc-500">Alumni Connections</CardTitle>
+            <CardTitle className="text-sm font-medium text-zinc-500">
+              Alumni Connections
+            </CardTitle>
             <div className="p-2 bg-violet-100 rounded-lg">
-                <Users className="h-4 w-4 text-violet-600" />
+              <Users className="h-4 w-4 text-violet-600" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-zinc-900">0</div>
+            <div className="text-3xl font-bold text-zinc-900">{stats.accepted}</div>
             <p className="text-xs text-zinc-500 mt-1">Active connections</p>
           </CardContent>
         </Card>
@@ -98,30 +129,18 @@ export default function StudentDashboard() {
         {/* Stat Card 2 */}
         <Card className="border-zinc-200 shadow-sm hover:shadow-md transition-all hover:-translate-y-1">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-zinc-500">Requests Sent</CardTitle>
+            <CardTitle className="text-sm font-medium text-zinc-500">
+              Requests Sent
+            </CardTitle>
             <div className="p-2 bg-fuchsia-100 rounded-lg">
-                <MessageSquare className="h-4 w-4 text-fuchsia-600" />
+              <MessageSquare className="h-4 w-4 text-fuchsia-600" />
             </div>
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-zinc-900">
-              {loading ? "-" : mentorships.length}
+              {loading ? "-" : stats.pending}
             </div>
             <p className="text-xs text-zinc-500 mt-1">Awaiting responses</p>
-          </CardContent>
-        </Card>
-
-        {/* Stat Card 3 */}
-        <Card className="border-zinc-200 shadow-sm hover:shadow-md transition-all hover:-translate-y-1">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-zinc-500">Events Joined</CardTitle>
-            <div className="p-2 bg-emerald-100 rounded-lg">
-                <Calendar className="h-4 w-4 text-emerald-600" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-zinc-900">0</div>
-            <p className="text-xs text-zinc-500 mt-1">Upcoming sessions</p>
           </CardContent>
         </Card>
       </div>
@@ -131,15 +150,19 @@ export default function StudentDashboard() {
         <CardHeader className="border-b border-zinc-100 bg-zinc-50/50">
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-lg font-bold text-zinc-900">Request History</CardTitle>
-              <CardDescription className="text-zinc-500">Track the status of your mentorship applications.</CardDescription>
+              <CardTitle className="text-lg font-bold text-zinc-900">
+                Request History
+              </CardTitle>
+              <CardDescription className="text-zinc-500">
+                Track the status of your mentorship applications.
+              </CardDescription>
             </div>
           </div>
         </CardHeader>
 
         <CardContent className="p-0">
           {loading ? (
-             // Loading Skeleton
+            // Loading Skeleton
             <div className="p-12 flex flex-col items-center justify-center gap-3">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-600"></div>
               <p className="text-zinc-400 text-sm">Loading requests...</p>
@@ -150,11 +173,18 @@ export default function StudentDashboard() {
               <div className="w-16 h-16 bg-zinc-100 rounded-full flex items-center justify-center mb-4">
                 <MessageSquare className="w-7 h-7 text-zinc-400" />
               </div>
-              <h3 className="text-lg font-semibold text-zinc-900">No Requests Yet</h3>
+              <h3 className="text-lg font-semibold text-zinc-900">
+                No Requests Yet
+              </h3>
               <p className="text-zinc-500 max-w-sm mt-2 mb-6">
-                You haven't sent any mentorship requests. Browse the alumni directory to find a mentor.
+                You haven't sent any mentorship requests. Browse the alumni
+                directory to find a mentor.
               </p>
-              <Button variant="outline" className="border-zinc-300 hover:bg-zinc-50 hover:text-violet-700" asChild>
+              <Button
+                variant="outline"
+                className="border-zinc-300 hover:bg-zinc-50 hover:text-violet-700"
+                asChild
+              >
                 <Link href="/student/findalumni">Browse Alumni</Link>
               </Button>
             </div>
@@ -162,8 +192,8 @@ export default function StudentDashboard() {
             // List View
             <div className="divide-y divide-zinc-100">
               {mentorships.map((request) => (
-                <div 
-                  key={request._id} 
+                <div
+                  key={request._id}
                   className="flex flex-col sm:flex-row sm:items-center justify-between p-6 hover:bg-zinc-50/80 transition-colors gap-4 group"
                 >
                   {/* Left: Info */}
@@ -180,7 +210,12 @@ export default function StudentDashboard() {
                       </p>
                       <div className="flex items-center gap-2 mt-2 text-xs text-zinc-400 font-medium">
                         <Clock className="w-3.5 h-3.5" />
-                        <span>{new Date(request.date).toLocaleDateString(undefined, { dateStyle: 'medium' })}</span>
+                        <span>
+                          {new Date(request.date).toLocaleDateString(
+                            undefined,
+                            { dateStyle: "medium" }
+                          )}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -189,7 +224,10 @@ export default function StudentDashboard() {
                   <div className="flex items-center gap-3 self-start sm:self-center">
                     {/* Status Badge */}
                     {request.status === "pending" && (
-                      <Badge variant="secondary" className="bg-amber-100 text-amber-800 hover:bg-amber-100 border-amber-200 px-3 py-1">
+                      <Badge
+                        variant="secondary"
+                        className="bg-amber-100 text-amber-800 hover:bg-amber-100 border-amber-200 px-3 py-1"
+                      >
                         Pending
                       </Badge>
                     )}
@@ -199,12 +237,18 @@ export default function StudentDashboard() {
                       </Badge>
                     )}
                     {request.status === "rejected" && (
-                      <Badge variant="destructive" className="px-3 py-1">Rejected</Badge>
+                      <Badge variant="destructive" className="px-3 py-1">
+                        Rejected
+                      </Badge>
                     )}
 
                     {/* Chat Action (Only if accepted) */}
                     {request.status === "accepted" && (
-                      <Button size="sm" className="bg-violet-600 hover:bg-violet-700 text-white" asChild>
+                      <Button
+                        size="sm"
+                        className="bg-violet-600 hover:bg-violet-700 text-white"
+                        asChild
+                      >
                         <Link
                           href={{
                             pathname: `/student/chat/${request.alumniUserId}`,
@@ -215,6 +259,15 @@ export default function StudentDashboard() {
                         </Link>
                       </Button>
                     )}
+                    {request.status === "ended" && (
+                      <Badge
+                        variant="outline"
+                        className="bg-zinc-100 text-zinc-500 border-zinc-200 flex items-center gap-1 pl-2 pr-3 py-1"
+                      >
+                        <Archive className="w-3 h-3" />
+                        Ended
+                      </Badge>
+                    )}
                   </div>
                 </div>
               ))}
@@ -222,7 +275,6 @@ export default function StudentDashboard() {
           )}
         </CardContent>
       </Card>
-
     </div>
   );
 }

@@ -3,6 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 
 const fallbackPosts = [
   {
+    _id:"1",
     title: "The Future of Web Development",
     authorName: "Jane Doe",
     date: "Oct 6, 2025",
@@ -11,6 +12,7 @@ const fallbackPosts = [
     image: null,
   },
   {
+    _id:"2",
     title: "Mastering TypeScript in 2025",
     authorName: "John Smith",
     date: "Sep 20, 2025",
@@ -45,5 +47,5 @@ export default async function Page() {
     console.error("Error fetching blogs:", error);
   }
 
-  return <BlogCardGrid posts={posts} />;
+  return <BlogCardGrid posts={posts} role="alumni" />;
 }

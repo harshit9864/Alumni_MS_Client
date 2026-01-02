@@ -5,7 +5,7 @@ import { useAuth } from "@clerk/nextjs";
 import Chat from "@/app/components/Chat";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, MoreVertical, Phone, Video } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
 import { socket } from "@/lib/socket";
 
