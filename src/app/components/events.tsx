@@ -21,9 +21,6 @@ export default function Events({ role }: { role?: string }) {
   const [events, setEvents] = useState<Events[]>([]);
   const { getToken } = useAuth();
 
-  // ------------------------------------------------------------------
-  // FETCH DATA
-  // ------------------------------------------------------------------
   useEffect(() => {
     const fetchEvents = async () => {
       try {
@@ -49,9 +46,6 @@ export default function Events({ role }: { role?: string }) {
     fetchEvents();
   }, [getToken]);
 
-  // ------------------------------------------------------------------
-  // STATE HANDLERS (Passed to Child Card)
-  // ------------------------------------------------------------------
   
   // Remove event from UI after successful delete in Card
   const handleDelete = (id: string) => {

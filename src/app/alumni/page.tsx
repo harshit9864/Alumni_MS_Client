@@ -1,7 +1,11 @@
 "use client";
 
 import { useAuth } from "@clerk/nextjs";
-import BlogPublishForm from "../components/blogPublish";
+import dynamic from "next/dynamic";
+
+const BlogPublishForm = dynamic(() => import("../components/blogPublish"), {
+  loading: () => <Skeleton className="h-[400px] w-full" />,
+});
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CalendarCheck, BookOpen, Users, Sparkles } from "lucide-react";

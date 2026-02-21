@@ -1,7 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export default function SelectRole({
   updateUser,
@@ -9,6 +9,7 @@ export default function SelectRole({
   updateUser: (role: "admin" | "alumni" | "student") => Promise<any>;
 }) {
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   const handleSelect = (role: "admin" | "alumni" | "student") => {
     startTransition(async () => {
@@ -17,11 +18,11 @@ export default function SelectRole({
       // 🔒 YOUR LOGIC PRESERVED BELOW
       // ---------------------------------------------------------
       if (role === "student") {
-        redirect("/components/fillForm");
+        router.push("/components/fillForm");
       } else if (role === "admin") {
-        redirect("/components/adminForm");
+        router.push("/components/adminForm");
       } else {
-        redirect(`/${role}`);
+        router.push(`/${role}`);
       }
     });
   };
