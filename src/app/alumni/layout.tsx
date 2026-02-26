@@ -53,7 +53,7 @@ export default function AlumniLayout({ children }: { children: ReactNode }) {
                 </SheetTrigger>
                 
                 <SheetContent side="right" className="w-[300px] sm:w-[400px]">
-                  <SheetTitle className="text-left text-lg font-bold mb-6">
+                  <SheetTitle className="text-left text-lg font-bold mb-6 ml-2">
                     Alumni Menu
                   </SheetTitle>
                   <div className="flex flex-col gap-4 mt-6">
@@ -83,6 +83,7 @@ function NavLinks({ mobile = false, onClick }: { mobile?: boolean; onClick?: () 
     { name: "Events", href: "/alumni/events" },
     { name: "My Blogs", href: "/alumni/blog" },
     { name: "Mentorship", href: "/alumni/mentorship" },
+    { name: "Donate", href: "/alumni/donate" }
   ];
 
   return (

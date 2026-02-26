@@ -54,7 +54,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                 </SheetTrigger>
                 
                 <SheetContent side="right" className="w-[300px] sm:w-[400px]">
-                  <SheetTitle className="text-left text-lg font-bold mb-6">
+                  <SheetTitle className="text-left text-lg font-bold mb-6 ml-2">
                     Admin Menu
                   </SheetTitle>
                   <div className="flex flex-col gap-4 mt-6">

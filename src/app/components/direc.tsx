@@ -76,6 +76,7 @@ export default function AdminDirectory() {
     const fetchAlumni = async () => {
       setLoading(true);
       const token = await getToken();
+      console.log(token);
       try {
         const alumniRes = await FetchAlumni(token || "", "admin");
         setAlumnis(Array.isArray(alumniRes.data) ? alumniRes.data : []);

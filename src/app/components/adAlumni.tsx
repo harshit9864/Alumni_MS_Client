@@ -26,6 +26,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     const fetchTotal = async () => {
       const token = await getToken();
+      console.log(token)
       try {
         const result = await fetch("http://localhost:8080/api/totalAlumni", {
           headers: {

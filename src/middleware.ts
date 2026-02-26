@@ -23,7 +23,7 @@ export default clerkMiddleware(async (auth, req) => {
   }
   if (isProtectedRoute(req)) await auth.protect()
 
-})
+}, { clockSkewInMs: 30000 })
 
 export const config = {
   matcher: [
