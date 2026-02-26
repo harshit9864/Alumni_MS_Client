@@ -1,37 +1,11 @@
-import { auth } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
-import { clerkClient } from "@clerk/nextjs/server";
 import Link from "next/link";
+import AuthRedirector from "@/components/AuthRedirector";
 
-export const dynamic = "force-dynamic";
-
-export default async function HomePage() {
-  const { userId } = await auth();
-
-  // ------------------------------------------------------------------
-  // 🔄 LOGIC SECTION
-  // If the user IS logged in, we perform your existing role-based redirects.
-  // ------------------------------------------------------------------
-  if (userId) {
-    const client = await clerkClient();
-    const user = await client.users.getUser(userId);
-    const role = user.publicMetadata?.role as string | undefined;
-
-    console.log("Server Log - Role:", role);
-
-    if (!role) {
-      redirect("/select-role");
-    } else {
-      redirect(`/${role}`);
-    }
-  }
-
-  // ------------------------------------------------------------------
-  // 🎨 UI SECTION (Only visible to non-logged-in users)
-  // Designed for Light Mode, Clean & Professional Alumni System
-  // ------------------------------------------------------------------
+export default function HomePage() {
   return (
     <main className="min-h-screen bg-white text-slate-800 font-sans selection:bg-blue-100">
+      {/* Reactively redirects signed-in users to their role dashboard */}
+      <AuthRedirector />
       
       {/* --- Navbar --- */}
       <nav className="border-b border-slate-200 sticky top-0 z-50 bg-white/80 backdrop-blur-md">
