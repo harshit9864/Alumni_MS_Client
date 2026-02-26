@@ -19,7 +19,7 @@ import {
   Sparkles,
   Archive,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { useAuth } from "@clerk/nextjs";
 import Link from "next/link";
 
@@ -40,47 +40,44 @@ interface Mentorship {
 export default function StudentDashboard() {
   const [mentorships, setMentorships] = useState<Mentorship[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const { getToken, userId } = useAuth();
-  const stats = {
-    pending: 0,
-    accepted: 0,
-    rejected: 0,
-    ended: 0,
-  };
+
+  // Derive stats reactively from mentorships state
+  const stats = useMemo(() => {
+    const counts = { pending: 0, accepted: 0, rejected: 0, ended: 0 };
+    mentorships.forEach((m) => {
+      if (counts[m.status] !== undefined) counts[m.status]++;
+    });
+    return counts;
+  }, [mentorships]);
 
   // --------------------------------------------------------
-  // LOGIC (Preserved)
+  // DATA FETCHING
   // --------------------------------------------------------
-  useEffect(() => {
-    if (userId) console.log("Current User ID:", userId);
-  }, [userId]);
+  const fetchProfile = useCallback(async () => {
+    if (!userId) return;
+    try {
+      setError(null);
+      const token = await getToken();
+      const res = await fetch("http://localhost:8080/student/profile", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      if (!userId) return;
-      try {
-        const token = await getToken();
-        const res = await fetch("http://localhost:8080/student/profile", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        const result = await res.json();
-        if (!res.ok) throw new Error(result.message || "something went wrong");
-        setMentorships(result.data ?? []);
-        mentorships.forEach((m) => {
-          // This assumes m.status matches one of the keys exactly
-          if (stats[m.status] !== undefined) {
-            stats[m.status]++;
-          }
-        });
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProfile();
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.message || "Something went wrong");
+      setMentorships(result.data ?? []);
+    } catch (err) {
+      console.error(err);
+      setError(err instanceof Error ? err.message : "Failed to load data");
+    } finally {
+      setLoading(false);
+    }
   }, [getToken, userId]);
+
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
 
   // --------------------------------------------------------
   // UI RENDER
@@ -121,7 +118,7 @@ export default function StudentDashboard() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-zinc-900">{stats.accepted}</div>
+            <div className="text-3xl font-bold text-zinc-900">{loading ? "-" : stats.accepted}</div>
             <p className="text-xs text-zinc-500 mt-1">Active connections</p>
           </CardContent>
         </Card>
@@ -161,7 +158,13 @@ export default function StudentDashboard() {
         </CardHeader>
 
         <CardContent className="p-0">
-          {loading ? (
+          {error ? (
+            // Error State
+            <div className="p-12 flex flex-col items-center justify-center gap-3 text-center">
+              <p className="text-red-500 text-sm font-medium">{error}</p>
+              <Button variant="outline" size="sm" onClick={fetchProfile}>Retry</Button>
+            </div>
+          ) : loading ? (
             // Loading Skeleton
             <div className="p-12 flex flex-col items-center justify-center gap-3">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-600"></div>
