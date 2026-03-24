@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { Sparkles, CalendarOff, Plus } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 // Match the interface with your EventCard props
 interface Events {
@@ -77,10 +78,12 @@ export default function Events({ role }: { role?: string }) {
         </div>
         
         {/* Optional: Add Event Button (You can implement the create logic separately) */}
+        <Link aschild = "true" href="/admin/events/post-events">
         <Button className="bg-violet-600 hover:bg-violet-700 text-white shadow-md shadow-violet-200">
           <Plus className="w-4 h-4 mr-2" />
           Post New Event
         </Button>
+        </Link>
       </div>
 
       {/* --- Content Area --- */}

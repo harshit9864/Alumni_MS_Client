@@ -87,6 +87,7 @@ export default function AlumniChatPage() {
         </div>
 
         
+        
       </div>
 
       {/* --- Chat Body --- */}

@@ -1,61 +1,47 @@
-"use client";
-
-import { useAuth } from "@clerk/nextjs";
-import dynamic from "next/dynamic";
-
-const BlogPublishForm = dynamic(() => import("../components/blogPublish"), {
-  loading: () => <Skeleton className="h-[400px] w-full" />,
-});
-import { useEffect, useState } from "react";
+// 1. We remove "use client". This is now a Server Component by default!
+import { auth } from "@clerk/nextjs/server"; 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CalendarCheck, BookOpen, Users, Sparkles } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
+import BlogPublishForm from "../components/blogPublish"; 
+// Note: BlogPublishForm should probably have "use client" at the top of its own file 
+// since it likely handles form inputs and button clicks.
 
-export default function AlumniDashboard() {
-  const { getToken, isLoaded, isSignedIn } = useAuth();
+// 2. We make the component itself 'async'
+export default async function AlumniDashboard() {
+  
+  // 3. We grab the secure token directly on the server
+  const { getToken, userId } = await auth();
+  
+  // If they aren't logged in, Clerk usually intercepts this via middleware, 
+  // but it's good practice to check.
+  if (!userId) return <div>Unauthorized</div>;
 
-  const [eventsJoined, setEventsJoined] = useState(0);
-  const [mentorship, setMentorship] = useState(0);
-  const [blogs, setBlogs] = useState(0);
-  const [loadingData, setLoadingData] = useState(true);
+  const token = await getToken();
 
-  useEffect(() => {
-    if (!isLoaded || !isSignedIn) return;
+  // 4. We set up default stats
+  let stats = { events: 0, mentorships: 0, blogs: 0 };
 
-    const fetchAlumni = async () => {
-      try {
-        const token = await getToken();
-        if (!token) return;
+  // 5. We fetch the data Server-to-Server. No useEffect needed!
+  try {
+    const response = await fetch("http://localhost:8080/alumni/sync", {
+      headers: { Authorization: `Bearer ${token}` },
+      // 'no-store' tells Next.js not to cache this, ensuring the dashboard is always fresh
+      cache: "no-store" 
+    });
 
-        const response = await fetch("http://localhost:8080/alumni/sync", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (!response.ok) throw new Error("Something went wrong");
-
-        const result = await response.json();
-        
-        setEventsJoined(result?.data?.eventsJoined?.length || 0);
-        setMentorship(result?.data?.mentorship?.length || 0);
-        setBlogs(result?.data?.blogs?.length || 0);
-      } catch (error) {
-        console.error("Error fetching alumni:", error);
-      } finally {
-        setLoadingData(false);
-      }
-    };
-
-    fetchAlumni();
-  }, [isLoaded, isSignedIn, getToken]);
-
-  if (!isLoaded) {
-    return (
-      <div className="flex items-center justify-center min-h-[50vh]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-600"></div>
-      </div>
-    );
+    if (response.ok) {
+      const result = await response.json();
+      stats.events = result?.data?.eventsJoined?.length || 0;
+      stats.mentorships = result?.data?.mentorship?.length || 0;
+      stats.blogs = result?.data?.blogs?.length || 0;
+    }
+  } catch (error) {
+    console.error("Error fetching alumni:", error);
+    // You could render a specific error UI here if you wanted
   }
 
+  // 6. We render the UI. Because this is built on the server, 
+  // we don't need any loading Skeletons for the numbers! They will just be there.
   return (
     <div className="space-y-8 animate-in fade-in duration-700">
       
@@ -83,9 +69,8 @@ export default function AlumniDashboard() {
             </div>
           </CardHeader>
           <CardContent>
-            {loadingData ? <Skeleton className="h-8 w-16" /> : (
-              <div className="text-3xl font-bold text-zinc-900">{eventsJoined}</div>
-            )}
+            {/* Look how clean this is without the ternary loading checks! */}
+            <div className="text-3xl font-bold text-zinc-900">{stats.events}</div>
             <p className="text-xs text-zinc-500 mt-1">Participated events</p>
           </CardContent>
         </Card>
@@ -99,9 +84,7 @@ export default function AlumniDashboard() {
             </div>
           </CardHeader>
           <CardContent>
-            {loadingData ? <Skeleton className="h-8 w-16" /> : (
-              <div className="text-3xl font-bold text-zinc-900">{blogs}</div>
-            )}
+            <div className="text-3xl font-bold text-zinc-900">{stats.blogs}</div>
             <p className="text-xs text-zinc-500 mt-1">Articles shared</p>
           </CardContent>
         </Card>
@@ -115,9 +98,7 @@ export default function AlumniDashboard() {
             </div>
           </CardHeader>
           <CardContent>
-            {loadingData ? <Skeleton className="h-8 w-16" /> : (
-              <div className="text-3xl font-bold text-zinc-900">{mentorship}</div>
-            )}
+            <div className="text-3xl font-bold text-zinc-900">{stats.mentorships}</div>
             <p className="text-xs text-zinc-500 mt-1">Active connections</p>
           </CardContent>
         </Card>

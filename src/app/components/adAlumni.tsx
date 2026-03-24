@@ -1,7 +1,8 @@
 "use client";
 
 import { useAuth } from "@clerk/nextjs";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { 
   Card, 
   CardContent, 
@@ -14,41 +15,21 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Users, Calendar, DollarSign, UserPlus, Loader2, Sparkles } from "lucide-react";
 
-export default function AdminDashboard() {
-  const [totalDocuments, setTotalDocuments] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
+// Define the expected props
+interface AdminDashboardProps {
+  initialStats: any[];
+}
+
+export default function AdminDashboard({ initialStats }: AdminDashboardProps) {
+  const router = useRouter();
   const { getToken } = useAuth();
+  
+  // Initialize state directly from the server-fetched props
+  const [totalDocuments, setTotalDocuments] = useState<any[]>(initialStats);
+  const [submitting, setSubmitting] = useState(false);
 
   // ------------------------------------------------------------------
-  // 1. FETCH STATS
-  // ------------------------------------------------------------------
-  useEffect(() => {
-    const fetchTotal = async () => {
-      const token = await getToken();
-      console.log(token)
-      try {
-        const result = await fetch("http://localhost:8080/api/totalAlumni", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        const res = await result.json();
-        if (!result.ok) throw new Error("something went wrong");
-        
-        setTotalDocuments(res.data);
-      } catch (error) {
-        console.log("error", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchTotal();
-  }, [getToken]);
-
-  // ------------------------------------------------------------------
-  // 2. FORM HANDLING
+  // 1. FORM HANDLING
   // ------------------------------------------------------------------
   const [formData, setFormData] = useState({
     fullName: "",
@@ -87,14 +68,14 @@ export default function AdminDashboard() {
       const result = await response.json();
       if (!response.ok) throw new Error(result.message || "Something went wrong");
 
-      // Update local state to reflect new count immediately
+      // Optimistically update local state so the user sees immediate feedback
       setTotalDocuments((prev) => {
         const next = [...prev];
-        if(result.data?.totalAlumni) next[0] = result.data.totalAlumni;
+        if (result.data?.totalAlumni) next[0] = result.data.totalAlumni;
         return next;
       });
 
-      // Clear form
+      // Clear the form
       setFormData({
         fullName: "",
         email: "",
@@ -103,17 +84,20 @@ export default function AdminDashboard() {
         batchYear: "",
       });
       
-      alert("Alumni added successfully!"); // Replace with toast if available
+      alert("Alumni added successfully!");
+
+      // Refresh the route to ensure the server component is in sync with the new data
+      router.refresh();
 
     } catch (error) {
-      alert(error);
+      alert(error instanceof Error ? error.message : "An error occurred");
     } finally {
       setSubmitting(false);
     }
   };
 
   // ------------------------------------------------------------------
-  // 3. UI RENDER
+  // 2. UI RENDER
   // ------------------------------------------------------------------
   return (
     <div className="space-y-8 animate-in fade-in duration-700">
@@ -142,12 +126,8 @@ export default function AdminDashboard() {
             </div>
           </CardHeader>
           <CardContent>
-            {loading ? (
-              <div className="h-8 w-16 bg-zinc-100 animate-pulse rounded" />
-            ) : (
-              <div className="text-3xl font-bold text-zinc-900">{totalDocuments[0] ?? 0}</div>
-            )}
-            
+            {/* We removed the loading spinner because the data arrives instantly from the server */}
+            <div className="text-3xl font-bold text-zinc-900">{totalDocuments[0] ?? 0}</div>
           </CardContent>
         </Card>
 
@@ -160,16 +140,11 @@ export default function AdminDashboard() {
             </div>
           </CardHeader>
           <CardContent>
-             {loading ? (
-              <div className="h-8 w-16 bg-zinc-100 animate-pulse rounded" />
-            ) : (
-              <div className="text-3xl font-bold text-zinc-900">{totalDocuments[1] ?? 0}</div>
-            )}
-           
+            <div className="text-3xl font-bold text-zinc-900">{totalDocuments[1] ?? 0}</div>
           </CardContent>
         </Card>
 
-        {/* Donations Card (Static for now as per original code) */}
+        {/* Donations Card */}
         <Card className="border-zinc-200 shadow-sm hover:shadow-md transition-all">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-zinc-500">Total Donations</CardTitle>
@@ -179,7 +154,6 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-zinc-900">₹ 1,00,000</div>
-            
           </CardContent>
         </Card>
       </div>
@@ -200,7 +174,6 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardContent className="p-6 md:p-8">
                 <form onSubmit={handleSubmit} className="space-y-6">
-                    
                     {/* Row 1 */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
@@ -291,4 +264,4 @@ export default function AdminDashboard() {
       </div>
     </div>
   );
-}
+} 
