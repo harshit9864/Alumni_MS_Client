@@ -24,6 +24,7 @@ import {
   Loader2,
   Archive,
 } from "lucide-react";
+import { toast } from "sonner";
 
 // ------------------------------------------------------------------
 // TYPES
@@ -101,9 +102,10 @@ export default function MentorshipRequests() {
       setMentorships((prev) =>
         prev.map((m) => (m._id === id ? { ...m, status: newStatus } : m))
       );
+      toast.success(`Request ${newStatus.toLowerCase()}`);
     } catch (error) {
       console.error(error);
-      alert("Failed to update status");
+      toast.error("Failed to update status");
     } finally {
       setProcessingId(null);
     }
@@ -132,9 +134,10 @@ export default function MentorshipRequests() {
       setMentorships((prev) =>
         prev.filter((m) => (m._id === id ? { ...m, status: "ended" } : m))
       );
+      toast.success("Mentorship ended");
     } catch (error) {
       console.error(error);
-      alert("Error ending mentorship");
+      toast.error("Error ending mentorship");
     } finally {
       setProcessingId(null);
     }

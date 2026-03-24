@@ -3,6 +3,8 @@
 import { useAuth } from "@clerk/nextjs";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { z } from "zod";
+import { toast } from "sonner";
 import { 
   Card, 
   CardContent, 
@@ -19,6 +21,23 @@ import { Users, Calendar, DollarSign, UserPlus, Loader2, Sparkles } from "lucide
 interface AdminDashboardProps {
   initialStats: any[];
 }
+
+const alumniSchema = z.object({
+  fullName: z
+    .string()
+    .min(2, "Full Name must be at least 2 characters")
+    .regex(/[a-zA-Z]/, "Name must contain letters"), // Ensures it's not just numbers
+  email: z.string().email("Invalid email address"),
+  batchYear: z.string().regex(/^\d{4}$/, "Batch Year must be a 4-digit number (e.g. 2024)"),
+  company: z
+    .string()
+    .min(1, "Company is required")
+    .regex(/[a-zA-Z]/, "Company name must contain at least one letter"), // Allows "3M" or "B2B Inc" but blocks "12345"
+  currentProfession: z
+    .string()
+    .min(1, "Profession is required")
+    .regex(/[a-zA-Z]/, "Profession must contain at least one letter"), // Blocks purely numeric professions
+});
 
 export default function AdminDashboard({ initialStats }: AdminDashboardProps) {
   const router = useRouter();
@@ -38,19 +57,30 @@ export default function AdminDashboard({ initialStats }: AdminDashboardProps) {
     company: "",
     batchYear: "",
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    if (errors[e.target.name]) {
+      setErrors((prev) => ({ ...prev, [e.target.name]: "" }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const { fullName, batchYear, email, currentProfession, company } = formData;
     
-    if ([fullName, batchYear, email, currentProfession, company].some((field) => field?.trim() === "")) {
-      alert("All fields are required");
+    const validationResult = alumniSchema.safeParse(formData);
+    if (!validationResult.success) {
+      const fieldErrors: Record<string, string> = {};
+      const zodErrors = validationResult.error.flatten().fieldErrors;
+      Object.keys(zodErrors).forEach((key) => {
+        fieldErrors[key] = zodErrors[key as keyof typeof zodErrors]?.[0] || "";
+      });
+      setErrors(fieldErrors);
       return;
     }
+    
+    setErrors({});
 
     setSubmitting(true);
     const token = await getToken();
@@ -84,13 +114,13 @@ export default function AdminDashboard({ initialStats }: AdminDashboardProps) {
         batchYear: "",
       });
       
-      alert("Alumni added successfully!");
+      toast.success("Alumni added successfully!");
 
       // Refresh the route to ensure the server component is in sync with the new data
       router.refresh();
 
     } catch (error) {
-      alert(error instanceof Error ? error.message : "An error occurred");
+      toast.error(error instanceof Error ? error.message : "An error occurred");
     } finally {
       setSubmitting(false);
     }
@@ -177,18 +207,19 @@ export default function AdminDashboard({ initialStats }: AdminDashboardProps) {
                     {/* Row 1 */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
-                            <Label htmlFor="fullName">Full Name</Label>
+                            <Label htmlFor="fullName" className={errors.fullName ? "text-red-500" : ""}>Full Name</Label>
                             <Input 
                                 id="fullName"
                                 name="fullName"
                                 placeholder="e.g. ABC"
                                 value={formData.fullName}
                                 onChange={handleChange}
-                                className="focus-visible:ring-violet-500"
+                                className={errors.fullName ? "border-red-500 focus-visible:ring-red-500" : "focus-visible:ring-violet-500"}
                             />
+                            {errors.fullName && <p className="text-red-500 text-xs">{errors.fullName}</p>}
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="email">Email Address</Label>
+                            <Label htmlFor="email" className={errors.email ? "text-red-500" : ""}>Email Address</Label>
                             <Input 
                                 id="email"
                                 type="email"
@@ -196,15 +227,16 @@ export default function AdminDashboard({ initialStats }: AdminDashboardProps) {
                                 placeholder="ABC@example.com"
                                 value={formData.email}
                                 onChange={handleChange}
-                                className="focus-visible:ring-violet-500"
+                                className={errors.email ? "border-red-500 focus-visible:ring-red-500" : "focus-visible:ring-violet-500"}
                             />
+                            {errors.email && <p className="text-red-500 text-xs">{errors.email}</p>}
                         </div>
                     </div>
 
                     {/* Row 2 */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div className="space-y-2 md:col-span-1">
-                            <Label htmlFor="batchYear">Batch Year</Label>
+                            <Label htmlFor="batchYear" className={errors.batchYear ? "text-red-500" : ""}>Batch Year</Label>
                             <Input 
                                 id="batchYear"
                                 type="number"
@@ -212,33 +244,36 @@ export default function AdminDashboard({ initialStats }: AdminDashboardProps) {
                                 placeholder="2024"
                                 value={formData.batchYear}
                                 onChange={handleChange}
-                                className="focus-visible:ring-violet-500"
+                                className={errors.batchYear ? "border-red-500 focus-visible:ring-red-500" : "focus-visible:ring-violet-500"}
                             />
+                            {errors.batchYear && <p className="text-red-500 text-xs">{errors.batchYear}</p>}
                         </div>
                         <div className="space-y-2 md:col-span-2">
-                            <Label htmlFor="company">Company / Organization</Label>
+                            <Label htmlFor="company" className={errors.company ? "text-red-500" : ""}>Company / Organization</Label>
                             <Input 
                                 id="company"
                                 name="company"
                                 placeholder="e.g. Google, Microsoft"
                                 value={formData.company}
                                 onChange={handleChange}
-                                className="focus-visible:ring-violet-500"
+                                className={errors.company ? "border-red-500 focus-visible:ring-red-500" : "focus-visible:ring-violet-500"}
                             />
+                            {errors.company && <p className="text-red-500 text-xs">{errors.company}</p>}
                         </div>
                     </div>
 
                     {/* Row 3 */}
                     <div className="space-y-2">
-                        <Label htmlFor="currentProfession">Current Profession / Role</Label>
+                        <Label htmlFor="currentProfession" className={errors.currentProfession ? "text-red-500" : ""}>Current Profession / Role</Label>
                         <Input 
                             id="currentProfession"
                             name="currentProfession"
                             placeholder="e.g. Senior Software Engineer"
                             value={formData.currentProfession}
                             onChange={handleChange}
-                            className="focus-visible:ring-violet-500"
+                            className={errors.currentProfession ? "border-red-500 focus-visible:ring-red-500" : "focus-visible:ring-violet-500"}
                         />
+                        {errors.currentProfession && <p className="text-red-500 text-xs">{errors.currentProfession}</p>}
                     </div>
 
                     <div className="pt-2">

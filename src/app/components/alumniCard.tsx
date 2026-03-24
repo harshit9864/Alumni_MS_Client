@@ -2,6 +2,7 @@
 
 import { useAuth } from "@clerk/nextjs";
 import React, { useState } from "react";
+import { toast } from "sonner";
 import {
   Card,
   CardContent,
@@ -71,7 +72,7 @@ export default function AlumniEventGrid({
 
     } catch (error) {
       console.error(error);
-      alert("Failed to join event. Please try again.");
+      toast.error("Failed to join event. Please try again.");
     } finally {
       setJoiningId(null);
     }

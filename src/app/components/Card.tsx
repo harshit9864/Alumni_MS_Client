@@ -30,6 +30,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useAuth } from "@clerk/nextjs";
+import { toast } from "sonner";
 
 // ------------------------------------------------------------------
 // TYPES
@@ -92,9 +93,10 @@ export default function EventCard({
       if (onUpdate) onUpdate({ _id, ...formData });
 
       setIsEditing(false);
+      toast.success("Event updated successfully!");
     } catch (error) {
       console.error(error);
-      alert("Failed to update event");
+      toast.error("Failed to update event");
     } finally {
       setIsSaving(false);
     }
@@ -115,9 +117,10 @@ export default function EventCard({
 
       setIsOpen(false);
       if (onDelete) onDelete(_id);
+      toast.success("Event deleted successfully!");
     } catch (error) {
       console.error(error);
-      alert("Failed to delete event");
+      toast.error("Failed to delete event");
     } finally {
       setIsDeleting(false);
     }

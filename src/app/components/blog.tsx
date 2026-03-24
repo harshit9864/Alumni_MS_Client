@@ -10,6 +10,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@clerk/nextjs";
+import { toast } from "sonner";
+import Image from "next/image"; // Added Image import
 
 // ------------------------------------------------------------------
 // TYPES
@@ -26,9 +28,10 @@ interface BlogPost {
 interface BlogCardGridProps {
   posts: BlogPost[];
   role?: string; 
+  fetchBlogs: () => void; // Added fetchBlogs prop
 }
 
-export default function BlogCardGrid({ posts, role }: BlogCardGridProps) {
+export default function BlogCardGrid({ posts, role, fetchBlogs }: BlogCardGridProps) { // Added fetchBlogs to props
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
   const [localPosts, setLocalPosts] = useState<BlogPost[]>(posts);
   
@@ -78,7 +81,8 @@ export default function BlogCardGrid({ posts, role }: BlogCardGridProps) {
         body: JSON.stringify(editForm),
       });
 
-      if (!res.ok) throw new Error("Failed to update blog");
+      const data = await res.json(); // Added this line
+      if (!res.ok) throw new Error(data.error || "Failed to update blog"); // Modified error handling
 
       const updatedPost = { ...selectedPost, ...editForm };
       
@@ -87,12 +91,13 @@ export default function BlogCardGrid({ posts, role }: BlogCardGridProps) {
       );
       
       setSelectedPost(updatedPost);
-      setIsEditing(false);
-      alert("Blog updated successfully!");
+      setIsEditing(false); // Replaced setEditingBlog(null) with setIsEditing(false)
+      toast.success("Blog updated successfully!"); // Replaced alert
+      fetchBlogs(); // Added fetchBlogs call
 
-    } catch (error) {
+    } catch (error: any) { // Added type for error
       console.error(error);
-      alert("Error updating blog");
+      toast.error(error.message || "Error updating blog"); // Replaced alert and used error message
     } finally {
       setIsSaving(false);
     }
@@ -115,18 +120,22 @@ export default function BlogCardGrid({ posts, role }: BlogCardGridProps) {
         },
       });
 
-      if (!res.ok) throw new Error("Failed to delete blog");
+      const data = await res.json(); // Added this line
+      if (!res.ok) { // Modified error handling
+        throw new Error(data.error || "Failed to delete blog");
+      }
 
       // Update Local State: Remove the deleted post
       setLocalPosts((prev) => prev.filter((p) => p._id !== selectedPost._id));
       
       // Close Modal
       setSelectedPost(null);
-      alert("Blog post deleted.");
+      toast.success("Blog post deleted."); // Replaced alert
+      fetchBlogs(); // Added fetchBlogs call
 
-    } catch (error) {
+    } catch (error: any) { // Added type for error
       console.error(error);
-      alert("Error deleting blog");
+      toast.error(error.message || "Error deleting blog"); // Replaced alert and used error message
     } finally {
       setIsDeleting(false);
     }

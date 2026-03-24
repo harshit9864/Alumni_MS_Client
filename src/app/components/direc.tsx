@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useAuth } from "@clerk/nextjs";
+import { toast } from "sonner";
 import { 
   Table, 
   TableBody, 
@@ -101,9 +102,10 @@ export default function AdminDirectory({ initialAlumnis }: AdminDirectoryProps) 
       );
       
       setIsEditOpen(false);
+      toast.success("Alumni record updated");
     } catch (error) {
       console.error(error);
-      alert("Error updating record");
+      toast.error("Error updating record");
     } finally {
       setIsSaving(false);
     }
@@ -132,9 +134,10 @@ export default function AdminDirectory({ initialAlumnis }: AdminDirectoryProps) 
       // Remove from UI locally
       setAlumnis((prev) => prev.filter((a) => a._id !== alumniToDelete._id));
       setIsDeleteOpen(false);
+      toast.success("Alumni deleted successfully");
     } catch (error) {
       console.error(error);
-      alert("Error deleting record");
+      toast.error("Error deleting record");
     } finally {
       setIsDeleting(false);
     }

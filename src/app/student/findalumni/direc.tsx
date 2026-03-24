@@ -3,6 +3,7 @@
 import FetchAlumni from "@/lib/api/alumni";
 import { useAuth } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import {
   Search,
   Briefcase,
@@ -114,9 +115,9 @@ export default function AlumniDirectory() {
       // Reset and Close
       setPurpose("");
       setSelectedAlumni(null);
-      alert(`Mentorship request sent to ${selectedAlumni.fullName}!`); // Replace with toast if available
+      toast.success(`Mentorship request sent to ${selectedAlumni.fullName}!`);
     } catch (error) {
-      alert("Error sending request: " + error);
+      toast.error("Error sending request: " + error);
     } finally {
       setSubmitting(false);
     }

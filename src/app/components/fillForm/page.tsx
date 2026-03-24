@@ -3,6 +3,24 @@
 import { useAuth } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { useState, ChangeEvent, FormEvent } from "react";
+import { z } from "zod";
+
+const profileSchema = z.object({
+  fullName: z
+    .string()
+    .min(2, "Full Name must be at least 2 characters")
+    .regex(/[a-zA-Z]/, "Full Name must contain letters"),
+  email: z.string().email("Invalid email address"),
+  passoutYear: z.string().regex(/^\d{4}$/, "Passout Year must be a 4-digit number (e.g. 2025)"),
+  college: z
+    .string()
+    .min(2, "College/University is required")
+    .regex(/[a-zA-Z]/, "College/University must contain letters"),
+  interests: z
+    .string()
+    .min(2, "Please provide at least one interest")
+    .regex(/[a-zA-Z]/, "Interests must contain letters"),
+});
 
 export default function UserForm() {
   const [formData, setFormData] = useState({
@@ -13,15 +31,32 @@ export default function UserForm() {
     college: "",
   });
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const router = useRouter();
   const { getToken } = useAuth();
 
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    if (errors[e.target.name]) {
+      setErrors((prev) => ({ ...prev, [e.target.name]: "" }));
+    }
   }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+
+    const validationResult = profileSchema.safeParse(formData);
+    if (!validationResult.success) {
+      const fieldErrors: Record<string, string> = {};
+      const zodErrors = validationResult.error.flatten().fieldErrors;
+      Object.keys(zodErrors).forEach((key) => {
+        fieldErrors[key] = zodErrors[key as keyof typeof zodErrors]?.[0] || "";
+      });
+      setErrors(fieldErrors);
+      return;
+    }
+    setErrors({});
+
     setLoading(true);
     const payload = {
       fullName: formData.fullName,
@@ -82,66 +117,66 @@ export default function UserForm() {
         >
           {/* Full Name */}
           <div>
-            <label className={labelClass}>Full Name</label>
+            <label className={`${labelClass} ${errors.fullName ? "text-red-500" : ""}`}>Full Name</label>
             <input
               type="text"
               name="fullName"
               placeholder="e.g. ABC"
               value={formData.fullName}
               onChange={handleChange}
-              required
-              className={inputClass}
+              className={`${inputClass} ${errors.fullName ? "border-red-500 focus:ring-red-500/10" : ""}`}
             />
+            {errors.fullName && <p className="text-red-500 text-xs mt-1">{errors.fullName}</p>}
           </div>
 
           {/* Email */}
           <div>
-            <label className={labelClass}>Email Address</label>
+            <label className={`${labelClass} ${errors.email ? "text-red-500" : ""}`}>Email Address</label>
             <input
               type="email"
               name="email"
               placeholder="ABC@gmail.com"
               value={formData.email}
               onChange={handleChange}
-              required
-              className={inputClass}
+              className={`${inputClass} ${errors.email ? "border-red-500 focus:ring-red-500/10" : ""}`}
             />
+            {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
           </div>
 
           {/* Grid for College & Year */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className={labelClass}>College / University</label>
+              <label className={`${labelClass} ${errors.college ? "text-red-500" : ""}`}>College / University</label>
               <input
                 type="text"
                 name="college"
                 placeholder="e.g. MIT"
                 value={formData.college}
                 onChange={handleChange}
-                required
-                className={inputClass}
+                className={`${inputClass} ${errors.college ? "border-red-500 focus:ring-red-500/10" : ""}`}
               />
+              {errors.college && <p className="text-red-500 text-xs mt-1">{errors.college}</p>}
             </div>
 
             <div>
-              <label className={labelClass}>Passout Year</label>
+              <label className={`${labelClass} ${errors.passoutYear ? "text-red-500" : ""}`}>Passout Year</label>
               <input
                 type="number"
                 name="passoutYear"
                 placeholder="2025"
                 value={formData.passoutYear}
                 onChange={handleChange}
-                required
                 min="1900"
                 max="2099"
-                className={inputClass}
+                className={`${inputClass} ${errors.passoutYear ? "border-red-500 focus:ring-red-500/10" : ""}`}
               />
+              {errors.passoutYear && <p className="text-red-500 text-xs mt-1">{errors.passoutYear}</p>}
             </div>
           </div>
 
           {/* Interests */}
           <div>
-            <label className={labelClass}>
+            <label className={`${labelClass} ${errors.interests ? "text-red-500" : ""}`}>
               Areas of Interest <span className="text-slate-400 font-normal">(Comma separated)</span>
             </label>
             <input
@@ -150,9 +185,9 @@ export default function UserForm() {
               placeholder="e.g. Web Development, AI, Data Science"
               value={formData.interests}
               onChange={handleChange}
-              required
-              className={inputClass}
+              className={`${inputClass} ${errors.interests ? "border-red-500 focus:ring-red-500/10" : ""}`}
             />
+            {errors.interests && <p className="text-red-500 text-xs mt-1">{errors.interests}</p>}
           </div>
 
           {/* Submit Button */}

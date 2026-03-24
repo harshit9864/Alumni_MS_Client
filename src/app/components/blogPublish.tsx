@@ -8,6 +8,28 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@clerk/nextjs";
 import { PenTool, Image as ImageIcon, Loader2, User, Type, FileText } from "lucide-react";
+import { z } from "zod";
+import { toast } from "sonner";
+
+const blogSchema = z.object({
+  title: z
+    .string()
+    .min(5, "Title must be at least 5 characters")
+    .regex(/[a-zA-Z]/, "Title must contain at least one letter"),
+  authorName: z
+    .string()
+    .min(2, "Author Name must be at least 2 characters")
+    .regex(/[a-zA-Z]/, "Author Name must contain at least one letter"),
+  date: z.string().refine((val) => !isNaN(Date.parse(val)), "Valid date is required"),
+  summary: z
+    .string()
+    .min(10, "Summary must be at least 10 characters")
+    .regex(/[a-zA-Z]/, "Summary must contain at least one letter"),
+  content: z
+    .string()
+    .min(50, "Content must be at least 50 characters")
+    .regex(/[a-zA-Z]/, "Content must contain at least one letter"),
+});
 
 interface BlogPostState {
   title: string;
@@ -21,6 +43,7 @@ interface BlogPostState {
 export default function BlogPublishForm() {
   const { getToken } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState<BlogPostState>({
     title: "",
     authorName: "",
@@ -40,11 +63,27 @@ export default function BlogPublishForm() {
       }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
+      if (errors[name]) {
+        setErrors((prev) => ({ ...prev, [name]: "" }));
+      }
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const validationResult = blogSchema.safeParse(formData);
+    if (!validationResult.success) {
+      const fieldErrors: Record<string, string> = {};
+      const zodErrors = validationResult.error.flatten().fieldErrors;
+      Object.keys(zodErrors).forEach((key) => {
+        fieldErrors[key] = zodErrors[key as keyof typeof zodErrors]?.[0] || "";
+      });
+      setErrors(fieldErrors);
+      return;
+    }
+    setErrors({});
+
     setIsSubmitting(true);
     const token = await getToken();
 
@@ -66,7 +105,7 @@ export default function BlogPublishForm() {
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Something went wrong");
 
-      alert("Blog published successfully!");
+      toast.success("Blog published successfully!");
       setFormData({
         title: "",
         authorName: "",
@@ -77,7 +116,7 @@ export default function BlogPublishForm() {
       });
     } catch (error) {
       console.error(error);
-      alert("Failed to publish blog.");
+      toast.error("Failed to publish blog.");
     } finally {
       setIsSubmitting(false);
     }
@@ -103,7 +142,7 @@ export default function BlogPublishForm() {
           {/* Row 1: Title & Author */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="title" className="flex items-center gap-2 text-zinc-700">
+              <Label htmlFor="title" className={`flex items-center gap-2 ${errors.title ? "text-red-500" : "text-zinc-700"}`}>
                 <Type className="w-4 h-4 text-violet-500" /> Blog Title
               </Label>
               <Input
@@ -112,13 +151,13 @@ export default function BlogPublishForm() {
                 placeholder="Enter an engaging title"
                 value={formData.title}
                 onChange={handleChange}
-                required
-                className="focus-visible:ring-violet-500"
+                className={errors.title ? "border-red-500 focus-visible:ring-red-500" : "focus-visible:ring-violet-500"}
               />
+              {errors.title && <p className="text-red-500 text-xs">{errors.title}</p>}
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="authorName" className="flex items-center gap-2 text-zinc-700">
+              <Label htmlFor="authorName" className={`flex items-center gap-2 ${errors.authorName ? "text-red-500" : "text-zinc-700"}`}>
                  <User className="w-4 h-4 text-violet-500" /> Author Name
               </Label>
               <Input
@@ -127,9 +166,9 @@ export default function BlogPublishForm() {
                 placeholder="e.g. ABC"
                 value={formData.authorName}
                 onChange={handleChange}
-                required
-                className="focus-visible:ring-violet-500"
+                className={errors.authorName ? "border-red-500 focus-visible:ring-red-500" : "focus-visible:ring-violet-500"}
               />
+              {errors.authorName && <p className="text-red-500 text-xs">{errors.authorName}</p>}
             </div>
           </div>
 
@@ -150,21 +189,22 @@ export default function BlogPublishForm() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="date" className="text-zinc-700">Publish Date</Label>
+              <Label htmlFor="date" className={errors.date ? "text-red-500" : "text-zinc-700"}>Publish Date</Label>
               <Input
                 id="date"
                 type="date"
                 name="date"
                 value={formData.date}
                 onChange={handleChange}
-                className="focus-visible:ring-violet-500 block"
+                className={`block ${errors.date ? "border-red-500 focus-visible:ring-red-500" : "focus-visible:ring-violet-500"}`}
               />
+              {errors.date && <p className="text-red-500 text-xs">{errors.date}</p>}
             </div>
           </div>
 
           {/* Summary */}
           <div className="space-y-2">
-            <Label htmlFor="summary" className="text-zinc-700">Short Summary</Label>
+            <Label htmlFor="summary" className={errors.summary ? "text-red-500" : "text-zinc-700"}>Short Summary</Label>
             <Textarea
               id="summary"
               name="summary"
@@ -172,14 +212,14 @@ export default function BlogPublishForm() {
               value={formData.summary}
               onChange={handleChange}
               rows={2}
-              required
-              className="resize-none focus-visible:ring-violet-500"
+              className={`resize-none ${errors.summary ? "border-red-500 focus-visible:ring-red-500" : "focus-visible:ring-violet-500"}`}
             />
+            {errors.summary && <p className="text-red-500 text-xs">{errors.summary}</p>}
           </div>
 
           {/* Full Content */}
           <div className="space-y-2">
-            <Label htmlFor="content" className="flex items-center gap-2 text-zinc-700">
+            <Label htmlFor="content" className={`flex items-center gap-2 ${errors.content ? "text-red-500" : "text-zinc-700"}`}>
                 <FileText className="w-4 h-4 text-violet-500" /> Full Content
             </Label>
             <Textarea
@@ -189,9 +229,9 @@ export default function BlogPublishForm() {
               value={formData.content}
               onChange={handleChange}
               rows={10}
-              required
-              className="focus-visible:ring-violet-500"
+              className={errors.content ? "border-red-500 focus-visible:ring-red-500" : "focus-visible:ring-violet-500"}
             />
+            {errors.content && <p className="text-red-500 text-xs">{errors.content}</p>}
           </div>
 
           <div className="pt-2">
