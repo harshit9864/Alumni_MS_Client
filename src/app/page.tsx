@@ -1,28 +1,35 @@
 import Link from "next/link";
 import AuthRedirector from "@/components/AuthRedirector";
+import { 
+  BookOpen, Search, UserPlus, Calendar, 
+  Award, Edit3, CheckCircle, Users, 
+  Shield, Database, CalendarDays, Activity, 
+  ArrowRight, GraduationCap 
+} from "lucide-react";
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-white text-slate-800 font-sans selection:bg-blue-100">
+    <main className="min-h-screen bg-[#f7f9fb] text-[#191c1e] font-sans antialiased selection:bg-[#dde1ff] selection:text-[#001453]">
+      
       {/* Reactively redirects signed-in users to their role dashboard */}
       <AuthRedirector />
       
-      {/* --- Navbar --- */}
-      <nav className="border-b border-slate-200 sticky top-0 z-50 bg-white/80 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="font-bold text-2xl text-blue-700 tracking-tight">
-            Alumni<span className="text-slate-800">Connect</span>
-          </div>
-          <div className="flex gap-4">
+      {/* --- TopNavBar --- */}
+      <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-100">
+        <div className="flex justify-between items-center max-w-7xl mx-auto px-6 py-4">
+          <span className="text-2xl font-bold tracking-tighter text-slate-900">
+            AlumniConnect
+          </span>
+          <div className="flex items-center gap-4">
             <Link 
               href="/sign-in" 
-              className="text-slate-600 hover:text-blue-600 font-medium px-4 py-2 transition-colors"
+              className="text-[#2b4bb9] font-semibold text-sm tracking-tight hover:opacity-80 transition-all duration-300"
             >
               Sign In
             </Link>
             <Link 
               href="/sign-up" 
-              className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2 rounded-full transition-shadow shadow-md hover:shadow-lg"
+              className="bg-gradient-to-br from-[#2b4bb9] to-[#4865d3] text-white px-5 py-2.5 rounded-xl font-semibold text-sm tracking-tight hover:opacity-90 transition-all duration-300 active:scale-[0.98] shadow-md"
             >
               Get Started
             </Link>
@@ -30,128 +37,175 @@ export default function HomePage() {
         </div>
       </nav>
 
-      {/* --- Hero Section --- */}
-      <section className="relative pt-20 pb-32 overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-blue-50 rounded-full blur-3xl -z-10 opacity-60"></div>
-        
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <div className="inline-block mb-4 px-4 py-1.5 rounded-full bg-blue-50 border border-blue-100 text-blue-700 font-semibold text-sm uppercase tracking-wider">
-            Bridging the Gap
-          </div>
-          <h1 className="text-5xl md:text-6xl font-extrabold text-slate-900 leading-tight mb-6">
-            Connect with Your Legacy, <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
-              Build the Future.
-            </span>
-          </h1>
-          <p className="text-lg md:text-xl text-slate-600 mb-10 max-w-2xl mx-auto leading-relaxed">
-            A unified platform for students to find mentorship, alumni to give back, and the administration to manage the community efficiently.
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link 
-              href="/sign-up" 
-              className="bg-slate-900 text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-slate-800 transition-transform hover:-translate-y-1 shadow-xl"
-            >
-              Join the Community
-            </Link>
-            <Link 
-              href="/about" 
-              className="bg-white text-slate-700 border border-slate-300 px-8 py-4 rounded-xl font-bold text-lg hover:bg-slate-50 transition-colors"
-            >
-              Learn More
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* --- Features / Roles Overview --- */}
-      <section className="py-20 bg-slate-50 border-t border-slate-200">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-slate-900 mb-4">Designed for Everyone</h2>
-            <p className="text-slate-500 max-w-2xl mx-auto">
-              Whether you are looking to guide the next generation or seeking guidance yourself, our platform provides the tools you need.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
+      <div className="pt-8">
+        {/* --- Section 1: Hero Section --- */}
+        <section className="relative overflow-hidden py-24 md:py-32">
+          <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             
-            {/* Student Card */}
-            <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl transition-all hover:-translate-y-1 group">
-              <div className="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center mb-6 group-hover:bg-blue-600 transition-colors">
-                <svg className="w-7 h-7 text-blue-600 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
-                </svg>
+            <div className="lg:col-span-7 z-10">
+              <span className="inline-flex items-center px-3 py-1 rounded-full bg-[#dae2fd] text-[#3f465c] text-xs font-bold tracking-wide mb-6 uppercase">
+                Legacy & Connection
+              </span>
+              <h1 className="font-extrabold text-5xl md:text-7xl text-[#191c1e] leading-[1.1] tracking-tighter mb-8">
+                Connect with Your <span className="text-[#2b4bb9] italic">Legacy</span>,<br /> Build the Future.
+              </h1>
+              <p className="text-[#434655] text-lg md:text-xl leading-relaxed max-w-2xl mb-12">
+                A unified platform for students to find mentorship, alumni to give back, and the administration to manage the community efficiently.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Link 
+                  href="/sign-up" 
+                  className="bg-gradient-to-br from-[#2b4bb9] to-[#4865d3] text-white px-8 py-4 rounded-xl font-bold text-base hover:opacity-90 transition-all shadow-[0_12px_48px_-12px_rgba(43,75,185,0.4)] text-center"
+                >
+                  Join the Community
+                </Link>
+                <Link 
+                  href="/about" 
+                  className="bg-white border border-[#c3c6d7]/40 text-[#2b4bb9] px-8 py-4 rounded-xl font-bold text-base hover:bg-slate-50 transition-all text-center"
+                >
+                  Learn More
+                </Link>
               </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-3">For Students</h3>
-              <ul className="space-y-3 text-slate-600">
-                <li className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span> Browse Alumni directory
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span> Request 1-on-1 Mentorship
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span> Access exclusive events
-                </li>
-              </ul>
             </div>
 
-            {/* Alumni Card */}
-            <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl transition-all hover:-translate-y-1 group">
-              <div className="w-14 h-14 bg-indigo-100 rounded-xl flex items-center justify-center mb-6 group-hover:bg-indigo-600 transition-colors">
-                <svg className="w-7 h-7 text-indigo-600 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
+            <div className="lg:col-span-5 relative hidden lg:block">
+              <div className="aspect-square rounded-[2rem] overflow-hidden bg-[#e0e3e5] relative shadow-2xl shadow-slate-200">
+                <img 
+                  alt="Academic Community" 
+                  className="w-full h-full object-cover grayscale opacity-90 hover:grayscale-0 transition-all duration-700" 
+                  src="https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=1000&auto=format&fit=crop"
+                />
+                <div className="absolute inset-0 bg-[#2b4bb9]/10 mix-blend-multiply"></div>
               </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-3">For Alumni</h3>
-              <ul className="space-y-3 text-slate-600">
-                <li className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full"></span> Share expertise via Blogs
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full"></span> Accept Mentorship requests
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full"></span> Join Event
-                </li>
-              </ul>
-            </div>
-
-            {/* Admin Card */}
-            <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl transition-all hover:-translate-y-1 group">
-              <div className="w-14 h-14 bg-slate-100 rounded-xl flex items-center justify-center mb-6 group-hover:bg-slate-800 transition-colors">
-                <svg className="w-7 h-7 text-slate-600 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                </svg>
+              
+              {/* Accent Element */}
+              <div className="absolute -bottom-6 -left-6 bg-white p-6 rounded-xl shadow-[0_12px_48px_-12px_rgba(25,28,30,0.08)] max-w-xs border border-slate-100">
+                <div className="flex items-center gap-3 mb-3">
+                  <GraduationCap className="text-[#2b4bb9] w-6 h-6" />
+                  <span className="font-bold text-[#191c1e]">Top Mentors</span>
+                </div>
+                <p className="text-sm text-[#434655]">Access a network of 15,000+ active alumni from Fortune 500 companies.</p>
               </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-3">Administration</h3>
-              <ul className="space-y-3 text-slate-600">
-                <li className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 bg-slate-500 rounded-full"></span> Manage Alumni Database
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 bg-slate-500 rounded-full"></span> Organize & Post Events
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 bg-slate-500 rounded-full"></span> Monitor Community Health
-                </li>
-              </ul>
             </div>
 
           </div>
-        </div>
-      </section>
+          
+          {/* Background Tonal Shape */}
+          <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-[800px] h-[800px] bg-[#2b4bb9]/5 rounded-full blur-[120px] pointer-events-none"></div>
+        </section>
+
+        {/* --- Section 2: 'Designed for Everyone' Section --- */}
+        <section className="py-24 bg-[#f2f4f6]">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="mb-20 text-center md:text-left max-w-3xl">
+              <h2 className="font-extrabold text-4xl text-[#191c1e] mb-6 tracking-tight">Designed for Everyone</h2>
+              <p className="text-[#434655] text-lg">Whether you're starting your journey, looking to give back, or managing the ecosystem, AlumniConnect provides tailored tools for your success.</p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              
+              {/* For Students Card */}
+              <div className="bg-white p-10 rounded-2xl shadow-[0_4px_20px_-4px_rgba(25,28,30,0.04)] group hover:-translate-y-2 transition-all duration-300 flex flex-col h-full border border-[#c3c6d7]/20">
+                <div className="w-14 h-14 rounded-xl bg-[#2b4bb9]/10 flex items-center justify-center mb-8">
+                  <BookOpen className="text-[#2b4bb9] w-7 h-7" />
+                </div>
+                <h3 className="font-bold text-2xl text-[#191c1e] mb-6">For Students</h3>
+                <ul className="space-y-6 flex-grow">
+                  <li className="flex items-start gap-4">
+                    <Search className="text-[#2b4bb9]/60 w-5 h-5 shrink-0" />
+                    <span className="text-[#434655] leading-tight">Browse Alumni directory</span>
+                  </li>
+                  <li className="flex items-start gap-4">
+                    <UserPlus className="text-[#2b4bb9]/60 w-5 h-5 shrink-0" />
+                    <span className="text-[#434655] leading-tight">Request 1-on-1 Mentorship</span>
+                  </li>
+                  <li className="flex items-start gap-4">
+                    <Calendar className="text-[#2b4bb9]/60 w-5 h-5 shrink-0" />
+                    <span className="text-[#434655] leading-tight">Access exclusive events</span>
+                  </li>
+                </ul>
+                <div className="mt-10 pt-8 border-t border-slate-100">
+                  <Link href="/sign-up" className="text-[#505f76] font-bold inline-flex items-center gap-2 group-hover:gap-3 transition-all">
+                    Get Mentored <ArrowRight className="w-4 h-4" />
+                  </Link>
+                </div>
+              </div>
+
+              {/* For Alumni Card */}
+              <div className="bg-white p-10 rounded-2xl shadow-[0_4px_20px_-4px_rgba(25,28,30,0.04)] group hover:-translate-y-2 transition-all duration-300 flex flex-col h-full border border-[#c3c6d7]/20">
+                <div className="w-14 h-14 rounded-xl bg-[#d0e1fb]/40 flex items-center justify-center mb-8">
+                  <Award className="text-[#54647a] w-7 h-7" />
+                </div>
+                <h3 className="font-bold text-2xl text-[#191c1e] mb-6">For Alumni</h3>
+                <ul className="space-y-6 flex-grow">
+                  <li className="flex items-start gap-4">
+                    <Edit3 className="text-[#505f76] w-5 h-5 shrink-0" />
+                    <span className="text-[#434655] leading-tight">Share expertise via Blogs</span>
+                  </li>
+                  <li className="flex items-start gap-4">
+                    <CheckCircle className="text-[#505f76] w-5 h-5 shrink-0" />
+                    <span className="text-[#434655] leading-tight">Accept Mentorship requests</span>
+                  </li>
+                  <li className="flex items-start gap-4">
+                    <Users className="text-[#505f76] w-5 h-5 shrink-0" />
+                    <span className="text-[#434655] leading-tight">Join Networking Events</span>
+                  </li>
+                </ul>
+                <div className="mt-10 pt-8 border-t border-slate-100">
+                  <Link href="/sign-up" className="text-[#505f76] font-bold inline-flex items-center gap-2 group-hover:gap-3 transition-all">
+                    Give Back <ArrowRight className="w-4 h-4" />
+                  </Link>
+                </div>
+              </div>
+
+              {/* For Administration Card */}
+              <div className="bg-white p-10 rounded-2xl shadow-[0_4px_20px_-4px_rgba(25,28,30,0.04)] group hover:-translate-y-2 transition-all duration-300 flex flex-col h-full border border-[#c3c6d7]/20">
+                <div className="w-14 h-14 rounded-xl bg-[#dae2fd] flex items-center justify-center mb-8">
+                  <Shield className="text-[#3f465c] w-7 h-7" />
+                </div>
+                <h3 className="font-bold text-2xl text-[#191c1e] mb-6">Administration</h3>
+                <ul className="space-y-6 flex-grow">
+                  <li className="flex items-start gap-4">
+                    <Database className="text-[#656d84] w-5 h-5 shrink-0" />
+                    <span className="text-[#434655] leading-tight">Manage Alumni Database</span>
+                  </li>
+                  <li className="flex items-start gap-4">
+                    <CalendarDays className="text-[#656d84] w-5 h-5 shrink-0" />
+                    <span className="text-[#434655] leading-tight">Organize & Post Events</span>
+                  </li>
+                  <li className="flex items-start gap-4">
+                    <Activity className="text-[#656d84] w-5 h-5 shrink-0" />
+                    <span className="text-[#434655] leading-tight">Monitor Community Health</span>
+                  </li>
+                </ul>
+                <div className="mt-10 pt-8 border-t border-slate-100">
+                  <Link href="/sign-in" className="text-[#656d84] font-bold inline-flex items-center gap-2 group-hover:gap-3 transition-all">
+                    Platform Login <ArrowRight className="w-4 h-4" />
+                  </Link>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </section>
+      </div>
 
       {/* --- Footer --- */}
-      <footer className="bg-slate-50 py-12 border-t border-slate-200">
-        <div className="max-w-7xl mx-auto px-6 text-center">
-          <p className="text-slate-500">© 2025 Alumni Management System. All rights reserved.</p>
+      <footer className="w-full py-12 border-t border-slate-200 bg-slate-50">
+        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8">
+          <div className="flex flex-col gap-2 items-center md:items-start">
+            <span className="text-xl font-bold tracking-tight text-slate-900">AlumniConnect</span>
+            <p className="text-sm text-slate-500 text-center md:text-left">
+              © 2026 AlumniConnect. Bridging generations together.
+            </p>
+          </div>
+          <div className="flex flex-wrap justify-center gap-6">
+            <Link href="#" className="text-sm text-slate-500 hover:text-[#2b4bb9] transition-colors">Privacy Policy</Link>
+            <Link href="#" className="text-sm text-slate-500 hover:text-[#2b4bb9] transition-colors">Terms of Service</Link>
+            <Link href="#" className="text-sm text-slate-500 hover:text-[#2b4bb9] transition-colors">Contact Support</Link>
+          </div>
         </div>
       </footer>
-
     </main>
   );
 }
