@@ -70,7 +70,7 @@ export default function UserForm() {
       const token = await getToken();
       console.log("Submitting:", payload);
       
-      const res = await fetch("http://localhost:8080/student/form", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/student/form`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

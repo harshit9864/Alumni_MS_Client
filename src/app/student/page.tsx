@@ -60,7 +60,7 @@ export default function StudentDashboard() {
     try {
       setError(null);
       const token = await getToken();
-      const res = await fetch("http://localhost:8080/student/profile", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/student/profile`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

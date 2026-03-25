@@ -1,16 +1,13 @@
 "use client";
 
-import FetchAlumni from "@/lib/api/alumni";
+import { useState } from "react";
 import { useAuth } from "@clerk/nextjs";
-import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
   Search,
   Briefcase,
-  GraduationCap,
   Building2,
   Send,
-  X,
 } from "lucide-react";
 import {
   Table,
@@ -32,14 +29,11 @@ import {
   Card,
   CardContent,
   CardHeader,
-  CardTitle,
-  CardDescription,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea"; // Ensure you have this: npx shadcn-ui@latest add textarea
-import { Skeleton } from "@/components/ui/skeleton";
+import { Textarea } from "@/components/ui/textarea";
 
 export interface Alumni {
   fullName: string;
@@ -49,37 +43,21 @@ export interface Alumni {
   company: string;
 }
 
-export default function AlumniDirectory() {
+interface AlumniDirectoryProps {
+  initialAlumni: Alumni[];
+}
+
+export default function AlumniDirectory({ initialAlumni }: AlumniDirectoryProps) {
+  // Initialize state with the SSR data
   const [search, setSearch] = useState("");
   const [selectedAlumni, setSelectedAlumni] = useState<Alumni | null>(null);
-  const [alumni, setAlumnis] = useState<Alumni[]>([]);
+  const [alumni, setAlumnis] = useState<Alumni[]>(initialAlumni);
   const [purpose, setPurpose] = useState("");
-  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const { getToken } = useAuth();
 
   // ------------------------------------------------------------------
-  // 1. FETCH DATA
-  // ------------------------------------------------------------------
-  useEffect(() => {
-    const fetchAlumni = async () => {
-      setLoading(true);
-      const token = await getToken();
-      try {
-        const res = await FetchAlumni(token || "", "student");
-        // Ensure we are setting an array
-        setAlumnis(Array.isArray(res.data) ? res.data : []);
-      } catch (error) {
-        console.error("Failed to fetch alumni:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchAlumni();
-  }, [getToken]);
-
-  // ------------------------------------------------------------------
-  // 2. FILTER LOGIC
+  // 1. FILTER LOGIC
   // ------------------------------------------------------------------
   const filteredAlumni = alumni.filter((a) => {
     const query = search.toLowerCase();
@@ -92,7 +70,7 @@ export default function AlumniDirectory() {
   });
 
   // ------------------------------------------------------------------
-  // 3. ACTION HANDLERS
+  // 2. ACTION HANDLERS
   // ------------------------------------------------------------------
   const handleConfirm = async () => {
     if (!selectedAlumni || !purpose.trim()) return;
@@ -100,7 +78,7 @@ export default function AlumniDirectory() {
     const token = await getToken();
 
     try {
-      const res = await fetch("http://localhost:8080/student/mentorship", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/student/mentorship`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -157,46 +135,15 @@ export default function AlumniDirectory() {
             <Table>
               <TableHeader className="bg-zinc-50/50">
                 <TableRow>
-                  <TableHead className="font-semibold text-zinc-600">
-                    Alumni Name
-                  </TableHead>
-                  <TableHead className="font-semibold text-zinc-600">
-                    Batch
-                  </TableHead>
-                  <TableHead className="font-semibold text-zinc-600">
-                    Profession
-                  </TableHead>
-                  <TableHead className="font-semibold text-zinc-600">
-                    Company
-                  </TableHead>
-                  <TableHead className="text-right font-semibold text-zinc-600">
-                    Action
-                  </TableHead>
+                  <TableHead className="font-semibold text-zinc-600">Alumni Name</TableHead>
+                  <TableHead className="font-semibold text-zinc-600">Batch</TableHead>
+                  <TableHead className="font-semibold text-zinc-600">Profession</TableHead>
+                  <TableHead className="font-semibold text-zinc-600">Company</TableHead>
+                  <TableHead className="text-right font-semibold text-zinc-600">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {loading ? (
-                  // Loading Skeletons
-                  [...Array(5)].map((_, i) => (
-                    <TableRow key={i}>
-                      <TableCell>
-                        <Skeleton className="h-5 w-32" />
-                      </TableCell>
-                      <TableCell>
-                        <Skeleton className="h-5 w-16" />
-                      </TableCell>
-                      <TableCell>
-                        <Skeleton className="h-5 w-24" />
-                      </TableCell>
-                      <TableCell>
-                        <Skeleton className="h-5 w-20" />
-                      </TableCell>
-                      <TableCell>
-                        <Skeleton className="h-8 w-20 ml-auto" />
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : filteredAlumni.length > 0 ? (
+                {filteredAlumni.length > 0 ? (
                   // Data Rows
                   filteredAlumni.map((a, index) => (
                     <TableRow
@@ -280,7 +227,6 @@ export default function AlumniDirectory() {
           </DialogHeader>
 
           <div className="space-y-4 py-4">
-            {/* Alumni Summary Card inside Modal */}
             <div className="flex items-start gap-4 p-4 bg-zinc-50 rounded-lg border border-zinc-100">
               <div className="w-10 h-10 rounded-full bg-violet-100 flex items-center justify-center text-violet-600 font-bold">
                 {selectedAlumni?.fullName.charAt(0)}

@@ -28,10 +28,9 @@ interface BlogPost {
 interface BlogCardGridProps {
   posts: BlogPost[];
   role?: string; 
-  fetchBlogs: () => void; // Added fetchBlogs prop
 }
 
-export default function BlogCardGrid({ posts, role, fetchBlogs }: BlogCardGridProps) { // Added fetchBlogs to props
+export default function BlogCardGrid({ posts, role }: BlogCardGridProps) { // Added fetchBlogs to props
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
   const [localPosts, setLocalPosts] = useState<BlogPost[]>(posts);
   
@@ -72,7 +71,7 @@ export default function BlogCardGrid({ posts, role, fetchBlogs }: BlogCardGridPr
     const token = await getToken();
 
     try {
-      const res = await fetch(`http://localhost:8080/alumni/edit-blog/${selectedPost._id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/alumni/edit-blog/${selectedPost._id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -93,7 +92,6 @@ export default function BlogCardGrid({ posts, role, fetchBlogs }: BlogCardGridPr
       setSelectedPost(updatedPost);
       setIsEditing(false); // Replaced setEditingBlog(null) with setIsEditing(false)
       toast.success("Blog updated successfully!"); // Replaced alert
-      fetchBlogs(); // Added fetchBlogs call
 
     } catch (error: any) { // Added type for error
       console.error(error);
@@ -113,7 +111,7 @@ export default function BlogCardGrid({ posts, role, fetchBlogs }: BlogCardGridPr
 
     try {
       // Assuming DELETE endpoint: /alumni/blog/:id
-      const res = await fetch(`http://localhost:8080/alumni/delete-blog/${selectedPost._id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/alumni/delete-blog/${selectedPost._id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -131,7 +129,6 @@ export default function BlogCardGrid({ posts, role, fetchBlogs }: BlogCardGridPr
       // Close Modal
       setSelectedPost(null);
       toast.success("Blog post deleted."); // Replaced alert
-      fetchBlogs(); // Added fetchBlogs call
 
     } catch (error: any) { // Added type for error
       console.error(error);

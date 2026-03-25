@@ -26,7 +26,7 @@ export default function Events({ role }: { role?: string }) {
     const fetchEvents = async () => {
       try {
         const token = await getToken();
-        const res = await fetch("http://localhost:8080/events", { // Or /api/events
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/events`, { // Or /api/events
           headers: {
             Authorization: `Bearer ${token}`,
           },

@@ -50,7 +50,7 @@ export default function AlumniEventGrid({
     const token = await getToken();
     
     try {
-      const res = await fetch("http://localhost:8080/alumni/join-event", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/alumni/join-event`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

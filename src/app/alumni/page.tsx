@@ -23,7 +23,7 @@ export default async function AlumniDashboard() {
 
   // 5. We fetch the data Server-to-Server. No useEffect needed!
   try {
-    const response = await fetch("http://localhost:8080/alumni/sync", {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/alumni/sync`, {
       headers: { Authorization: `Bearer ${token}` },
       // 'no-store' tells Next.js not to cache this, ensuring the dashboard is always fresh
       cache: "no-store" 

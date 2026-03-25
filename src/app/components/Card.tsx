@@ -79,7 +79,7 @@ export default function EventCard({
     try {
       const token = await getToken();
       // Adjust URL to your actual backend endpoint
-      const res = await fetch(`http://localhost:8080/api/edit-event/${_id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/edit-event/${_id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -108,7 +108,7 @@ export default function EventCard({
     setIsDeleting(true);
     try {
       const token = await getToken();
-      const res = await fetch(`http://localhost:8080/api/delete-event/${_id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/delete-event/${_id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });

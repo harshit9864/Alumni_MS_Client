@@ -67,7 +67,7 @@ export default function CollegeForm() {
       setLoading(true);
       const token = await getToken();
 
-      const result = await fetch("http://localhost:8080/api/addAdmin", {
+      const result = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/addAdmin`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

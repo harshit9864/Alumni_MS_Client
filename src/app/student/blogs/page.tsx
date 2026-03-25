@@ -8,7 +8,7 @@ export default async function Page() {
   let blogs = null; // ✅ defined in outer scope
 
   try {
-    const response = await fetch("http://localhost:8080/student/blogs", {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/student/blogs`, {
       headers: { Authorization: `Bearer ${token}` },
     });
 

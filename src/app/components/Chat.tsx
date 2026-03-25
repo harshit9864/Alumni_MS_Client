@@ -42,7 +42,7 @@ export default function Chat({
       const loadHistory = async () => {
         try {
           const token = await getToken();
-          const res = await fetch(`http://localhost:8080/api/messages/${peerUserId}`, {
+          const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/messages/${peerUserId}`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           const result = await res.json();

@@ -63,7 +63,7 @@ export default function PostEvents() {
     const token = await getToken();
 
     try {
-      const res = await fetch("http://localhost:8080/api/postEvent", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/postEvent`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

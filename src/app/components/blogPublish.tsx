@@ -96,7 +96,7 @@ export default function BlogPublishForm() {
     if (formData.image) data.append("image", formData.image);
 
     try {
-      const response = await fetch("http://localhost:8080/alumni/post-blog", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/alumni/post-blog`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
         body: data,

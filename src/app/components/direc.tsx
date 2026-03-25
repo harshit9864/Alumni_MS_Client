@@ -85,7 +85,7 @@ export default function AdminDirectory({ initialAlumnis }: AdminDirectoryProps) 
     const token = await getToken();
 
     try {
-      const res = await fetch(`http://localhost:8080/api/edit-alumni/${currentAlumni._id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/edit-alumni/${currentAlumni._id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -122,7 +122,7 @@ export default function AdminDirectory({ initialAlumnis }: AdminDirectoryProps) 
     const token = await getToken();
 
     try {
-      const res = await fetch(`http://localhost:8080/api/delete-alumni/${alumniToDelete._id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/delete-alumni/${alumniToDelete._id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,

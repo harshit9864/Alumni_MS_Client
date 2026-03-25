@@ -86,7 +86,7 @@ export default function AdminDashboard({ initialStats }: AdminDashboardProps) {
     const token = await getToken();
     
     try {
-      const response = await fetch("http://localhost:8080/api/addAlumni", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/addAlumni`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

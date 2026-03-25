@@ -1,5 +1,5 @@
 export default async function FetchAlumni(token:string,role:string) {
-  const res = await fetch("http://localhost:8080/api/direc",{
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/direc`,{
     headers:{
       Authorization:`Bearer ${token}`,
       role:role

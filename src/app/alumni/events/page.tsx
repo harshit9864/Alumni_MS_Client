@@ -6,12 +6,12 @@ export default async function AlEvents() {
   const token = await getToken();
   try {
     const [eventsRes, alumniRes] = await Promise.all([
-      fetch("http://localhost:8080/alumni/fetchEvents", {
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/alumni/fetchEvents`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       }),
-      fetch("http://localhost:8080/alumni/sync", {
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/alumni/sync`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

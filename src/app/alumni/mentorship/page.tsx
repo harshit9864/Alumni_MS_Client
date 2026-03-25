@@ -53,7 +53,7 @@ export default function MentorshipRequests() {
     const fetchMentorship = async () => {
       const token = await getToken();
       try {
-        const res = await fetch("http://localhost:8080/alumni/mentorships", {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/alumni/mentorships`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -84,7 +84,7 @@ export default function MentorshipRequests() {
 
     try {
       const res = await fetch(
-        `http://localhost:8080/alumni/mentorships/${id}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/alumni/mentorships/${id}`,
         {
           method: "PATCH",
           headers: {
@@ -119,7 +119,7 @@ export default function MentorshipRequests() {
     try {
       // Assuming DELETE endpoint removes the mentorship record
       const res = await fetch(
-        `http://localhost:8080/alumni/mentorships/end/${id}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/alumni/mentorships/end/${id}`,
         {
           method: "PATCH", // Or PATCH if you just change status to "ended"
           headers: {

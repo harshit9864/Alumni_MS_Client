@@ -11,7 +11,7 @@ export default async function AdminPage() {
 
   // 2. Fetch the initial data (SSR)
   try {
-    const result = await fetch("http://localhost:8080/api/totalAlumni", {
+    const result = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/totalAlumni`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
