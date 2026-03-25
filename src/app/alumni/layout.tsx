@@ -113,7 +113,7 @@ function NavLinks({
     { name: "Events", href: "/alumni/events", icon: Calendar },
     { name: "My Blogs", href: "/alumni/blog", icon: FileText },
     { name: "Mentorship", href: "/alumni/mentorship", icon: Lightbulb },
-    { name: "Donate", href: "/alumni/donate", icon: DollarSign }
+    // { name: "Donate", href: "/alumni/donate", icon: DollarSign }
   ];
 
   return (
